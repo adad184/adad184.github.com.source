@@ -19,11 +19,11 @@
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.png">
+    <link rel="icon" href="/favicon.ico">
   
-  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
 <body>
@@ -58,7 +58,14 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://www.adad184.com"></form>
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="www.adad184.com">
+        </form>
       </div>
     </div>
   </div>
@@ -66,12 +73,132 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-alipay-sdk-sucks" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/08/27/alipay-sdk-sucks/" class="article-date">
+  <time datetime="2014-08-27T08:39:45.000Z" itemprop="datePublished">08 27 2014</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/08/27/alipay-sdk-sucks/">支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言">前言</h1>
+<p>支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)<br>但是跑到<a href="http://club.alipay.com/thread-htm-fid-703-page-6.html" target="_blank" rel="external">官方论坛</a>一看 都是各种各样的问题 以及千篇一律的解答</p>
+<p>这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了</p>
+<p>如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android的图凑数)</p>
+<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-alipay-sdk-sucks.png" alt="问题截图"></p>
+<h1 id="问题">问题</h1>
+<p>官方示例中支付相关的代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//构造订单</span></div><div class="line"><span class="built_in">NSString</span> *appScheme = <span class="string">@"AlipaySdkDemo"</span>;</div><div class="line"><span class="built_in">NSString</span>* orderInfo = [<span class="keyword">self</span> getOrderInfo:indexPath<span class="variable">.row</span>];</div><div class="line"><span class="built_in">NSString</span>* signedStr = [<span class="keyword">self</span> doRsa:orderInfo];</div><div class="line"></div><div class="line"><span class="comment">//形成订单参数</span></div><div class="line"><span class="built_in">NSString</span> *orderString = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@&sign=\"%@\"&sign_type=\"%@\""</span>,</div><div class="line">                         orderInfo, signedStr, <span class="string">@"RSA"</span>];</div><div class="line"></div><div class="line"><span class="comment">//调用支付借口</span></div><div class="line">[AlixLibService payOrder:orderString AndScheme:appScheme seletor:_result target:<span class="keyword">self</span>];</div></pre></td></tr></table></figure>
+
+<p>问题就出在<code>orderInfo</code>这里 那么<code>orderInfo</code>是什么呢?</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">-(<span class="built_in">NSString</span>*)getOrderInfo:(<span class="built_in">NSInteger</span>)index</div><div class="line">{</div><div class="line">    <span class="comment">/*</span></div><div class="line">     *点击获取prodcut实例并初始化订单信息</div><div class="line">     */</div><div class="line">    Product *product = [_products objectAtIndex:index];    </div><div class="line">    AlixPayOrder *order = [[AlixPayOrder alloc] init];</div><div class="line">    order<span class="variable">.partner</span> = PartnerID;</div><div class="line">    order<span class="variable">.seller</span> = SellerID;</div><div class="line"></div><div class="line">    order<span class="variable">.tradeNO</span> = [<span class="keyword">self</span> generateTradeNO]; <span class="comment">//订单ID（由商家自行制定）</span></div><div class="line">    order<span class="variable">.productName</span> = product<span class="variable">.subject</span>; <span class="comment">//商品标题</span></div><div class="line">    order<span class="variable">.productDescription</span> = product<span class="variable">.body</span>; <span class="comment">//商品描述</span></div><div class="line">    order<span class="variable">.amount</span> = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%.2f"</span>,product<span class="variable">.price</span>]; <span class="comment">//商品价格</span></div><div class="line">    order<span class="variable">.notifyURL</span> =  <span class="string">@"http%3A%2F%2Fwwww.xxx.com"</span>; <span class="comment">//回调URL</span></div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [order description];</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>可以到看<code>orderInfo</code>就是<code>AlixPayOrder</code>的字符串化 再看看其description函数</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (<span class="built_in">NSString</span> *)description {</div><div class="line">    <span class="built_in">NSMutableString</span> * discription = [<span class="built_in">NSMutableString</span> string];</div><div class="line">    [discription appendFormat:<span class="string">@"partner=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.partner</span> ? <span class="keyword">self</span><span class="variable">.partner</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&seller_id=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.seller</span> ? <span class="keyword">self</span><span class="variable">.seller</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&out_trade_no=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.tradeNO</span> ? <span class="keyword">self</span><span class="variable">.tradeNO</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&subject=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.productName</span> ? <span class="keyword">self</span><span class="variable">.productName</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&body=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.productDescription</span> ? <span class="keyword">self</span><span class="variable">.productDescription</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&total_fee=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.amount</span> ? <span class="keyword">self</span><span class="variable">.amount</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&notify_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.notifyURL</span> ? <span class="keyword">self</span><span class="variable">.notifyURL</span> : <span class="string">@""</span>];</div><div class="line">    </div><div class="line">    [discription appendFormat:<span class="string">@"&service=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.serviceName</span> ? <span class="keyword">self</span><span class="variable">.serviceName</span> : <span class="string">@"mobile.securitypay.pay"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&_input_charset=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.inputCharset</span> ? <span class="keyword">self</span><span class="variable">.inputCharset</span> : <span class="string">@"utf-8"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&payment_type=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.paymentType</span> ? <span class="keyword">self</span><span class="variable">.paymentType</span> : <span class="string">@"1"</span>];</div><div class="line"></div><div class="line">    <span class="comment">//下面的这些参数，如果没有必要（value为空），则无需添加</span></div><div class="line">    [discription appendFormat:<span class="string">@"&return_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.returnUrl</span> ? <span class="keyword">self</span><span class="variable">.returnUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&it_b_pay=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.itBPay</span> ? <span class="keyword">self</span><span class="variable">.itBPay</span> : <span class="string">@"1d"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&show_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.showUrl</span> ? <span class="keyword">self</span><span class="variable">.showUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line"></div><div class="line">    </div><div class="line">    <span class="keyword">for</span> (<span class="built_in">NSString</span> * key <span class="keyword">in</span> [<span class="keyword">self</span><span class="variable">.extraParams</span> allKeys]) {</div><div class="line">        [discription appendFormat:<span class="string">@"&%@=\"%@\""</span>, key, [<span class="keyword">self</span><span class="variable">.extraParams</span> objectForKey:key]];</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> discription;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>我猜问题可能出现在这里</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[discription appendFormat:<span class="string">@"&return_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.returnUrl</span> ? <span class="keyword">self</span><span class="variable">.returnUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line">[discription appendFormat:<span class="string">@"&it_b_pay=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.itBPay</span> ? <span class="keyword">self</span><span class="variable">.itBPay</span> : <span class="string">@"1d"</span>];</div><div class="line">[discription appendFormat:<span class="string">@"&show_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.showUrl</span> ? <span class="keyword">self</span><span class="variable">.showUrl</span> : <span class="string">@"www.xxx.com"</span>];</div></pre></td></tr></table></figure>
+
+<p>可能是这种莫名其妙的默认值导致了问题的出现(代码里注释了无需添加 可为啥官方demo是没有问题的?)<br><code>orderInfo</code>也不过是一堆参数的拼凑而已 同时 我求证了同事在android的sdk里 参数也都是手工拼凑的 那么将必填参数自行组织一下 应该就可以了</p>
+<h1 id="方案">方案</h1>
+<p>经过实践 只需要填下下面出现的这些参数 就没有问题了</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">-(<span class="built_in">NSString</span>*)getOrderInfo</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="built_in">NSMutableString</span> * discription = [<span class="built_in">NSMutableString</span> string] ;</div><div class="line">    [discription appendFormat:<span class="string">@"partner=\"%@\""</span>, PartnerID];</div><div class="line">    [discription appendFormat:<span class="string">@"&seller_id=\"%@\""</span>, SellerID];</div><div class="line">    [discription appendFormat:<span class="string">@"&out_trade_no=\"%@\""</span>, [<span class="keyword">self</span> getOrderID]];</div><div class="line">    [discription appendFormat:<span class="string">@"&subject=\"%@\""</span>, yourSubject];</div><div class="line">    [discription appendFormat:<span class="string">@"&body=\"%@\""</span>, yourBody];</div><div class="line">    [discription appendFormat:<span class="string">@"&total_fee=\"%@\""</span>, yourPrice];</div><div class="line">    [discription appendFormat:<span class="string">@"&notify_url=\"%@\""</span>, yourHandleAction];</div><div class="line">    [discription appendFormat:<span class="string">@"&service=\"%@\""</span>, <span class="string">@"mobile.securitypay.pay"</span>];</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> discription;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h1 id="尾声">尾声</h1>
+<p>当然 回过头来看 问题有这么几个</p>
+<ul>
+<li>官方demo写得不严谨 且注释太少</li>
+<li>官方文档写没有指出相关问题 以及对相应参数的解释(对于参数,仅提到了一句”<strong>支付参数提交时,需要组装订单信息 orderInfo,其中 参数以 key=”value”形式呈现,参数之间以“&amp;”分割, 获取 Alipay 支付对象调用支付。</strong>“”)</li>
+<li>官方论坛没有相应的技术支持</li>
+</ul>
+<p>结论就是: 坑爹</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/" data-id="he50whj4y03697ru" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/#ds-thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hello-my-baby" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/08/27/hello-my-baby/" class="article-date">
+  <time datetime="2014-08-27T08:21:14.000Z" itemprop="datePublished">08 27 2014</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/生活琐碎/">生活琐碎</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/08/27/hello-my-baby/">hello my baby</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-hello-my-baby.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.adad184.com/2014/08/27/hello-my-baby/" data-id="5cizvw40ttal18vq" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2014/08/27/hello-my-baby/#ds-thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" class="article-date">
-  <time datetime="2014-08-26T00:51:34.000Z" itemprop="datePublished">Aug 26 2014</time>
+  <time datetime="2014-08-26T00:51:34.000Z" itemprop="datePublished">08 26 2014</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -114,7 +241,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" data-id="709k1jiazuatzo55" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" data-id="709k1jiazuatzo55" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -127,11 +256,11 @@
     <article id="post-2014-08-21-kai-yuan-xiang-mu-mmplaceholder" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" class="article-date">
-  <time datetime="2014-08-21T04:17:14.000Z" itemprop="datePublished">Aug 21 2014</time>
+  <time datetime="2014-08-21T04:17:14.000Z" itemprop="datePublished">08 21 2014</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
+    <a class="article-category-link" href="/categories/开源项目/">开源项目</a>
   </div>
 
   </div>
@@ -172,7 +301,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" data-id="7azo9zptcg5ny3fx" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" data-id="7azo9zptcg5ny3fx" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -182,10 +313,10 @@
 
 
   
-    <article id="post-2013-12-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2013/12/31/2013-12-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" class="article-date">
-  <time datetime="2013-12-31T05:24:53.000Z" itemprop="datePublished">Dec 31 2013</time>
+    <a href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" class="article-date">
+  <time datetime="2014-01-31T05:24:53.000Z" itemprop="datePublished">01 31 2014</time>
 </a>
     
   <div class="article-category">
@@ -200,7 +331,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/31/2013-12-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
+      <a class="article-title" href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
     </h1>
   
 
@@ -216,7 +347,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/31/2013-12-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" data-id="22sw9o7mw2hvatve" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" data-id="q5kwhg1lkzq7q6mc" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -229,9 +362,13 @@
     <article id="post-2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" class="article-date">
-  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">Dec 19 2013</time>
+  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">12 19 2013</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -262,7 +399,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" data-id="nfeljs4qned3yzuu" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" data-id="nfeljs4qned3yzuu" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -275,9 +414,13 @@
     <article id="post-2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" class="article-date">
-  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">Dec 12 2013</time>
+  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">12 12 2013</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -296,13 +439,15 @@
       
         <p><code>interactivePopGestureRecognizer</code>是iOS7推出的解决<code>VeiwController</code>滑动后退的新功能,虽然很实用,但是坑也很多啊,用过的同学肯定知道问题在哪里,所以具体问题我就不描述了,这里只给出如何完美解决<code>interactivePopGestureRecognizer</code>卡住的问题.</p>
 <p>当然我们要自定义UINavigationController来解决这个问题:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">GGNavigationController</span> : <span class="title">UINavigationController</span></span></div><div class="line">&lt;</div><div class="line">UINavigationControllerDelegate,</div><div class="line">UIGestureRecognizerDelegate</div><div class="line">&gt;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">GGNavigationController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    NSFUNC;</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    </div><div class="line">    __<span class="keyword">weak</span> GGNavigationController *weakSelf = <span class="keyword">self</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">        <span class="keyword">self</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line"></div><div class="line">        <span class="comment">//初始时如果只有一个viewController,也要禁用此手势,不然在屏幕左划一下以后,就会卡住</span></div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = (<span class="keyword">self</span><span class="variable">.viewControllers</span><span class="variable">.count</span> &gt; <span class="number">1</span>);</div><div class="line">    }</div><div class="line">}</div><div class="line">- (<span class="keyword">void</span>)pushViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="comment">//在push的过程中一定要禁用此手势才不会卡住</span></div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [<span class="keyword">super</span> pushViewController:viewController animated:animated];</div><div class="line">}</div><div class="line"></div><div class="line"><span class="preprocessor">#pragma mark UINavigationControllerDelegate</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)navigationController:(<span class="built_in">UINavigationController</span> *)navigationController</div><div class="line">       didShowViewController:(<span class="built_in">UIViewController</span> *)viewController</div><div class="line">                    animated:(<span class="built_in">BOOL</span>)animate</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="comment">//当Nav里只有一个viewController时 必须禁止手势 不然会卡住</span></div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = (<span class="keyword">self</span><span class="variable">.viewControllers</span><span class="variable">.count</span> &gt; <span class="number">1</span>);</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="preprocessor">#import <span class="title">"MMNavController.h"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMNavController</span> ()</span></div><div class="line">{</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMNavController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)initWithRootViewController:(<span class="built_in">UIViewController</span> *)rootViewController</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithRootViewController:rootViewController];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        <span class="comment">// Custom initialization</span></div><div class="line">        </div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    </div><div class="line">    __<span class="keyword">weak</span> MMNavController *weakSelf = <span class="keyword">self</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">    }</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)pushViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [<span class="keyword">super</span> pushViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToRootViewControllerAnimated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span>  [<span class="keyword">super</span> popToRootViewControllerAnimated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span>( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> popToViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="preprocessor">#pragma mark UINavigationControllerDelegate</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)navigationController:(<span class="built_in">UINavigationController</span> *)navigationController</div><div class="line">       didShowViewController:(<span class="built_in">UIViewController</span> *)viewController</div><div class="line">                    animated:(<span class="built_in">BOOL</span>)animate</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">YES</span>;</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">-(<span class="built_in">BOOL</span>)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( gestureRecognizer == <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( <span class="keyword">self</span><span class="variable">.viewControllers</span><span class="variable">.count</span> &lt; <span class="number">2</span> || <span class="keyword">self</span><span class="variable">.visibleViewController</span> == [<span class="keyword">self</span><span class="variable">.viewControllers</span> objectAtIndex:<span class="number">0</span>] )</div><div class="line">        {</div><div class="line">            <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">        }</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
 
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" data-id="3okmchpqgc13jfm9" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" data-id="3okmchpqgc13jfm9" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -312,10 +457,10 @@
 
 
   
-    <article id="post-2013-12-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2013/12/11/2013-12-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" class="article-date">
-  <time datetime="2013-12-11T03:01:59.000Z" itemprop="datePublished">Dec 11 2013</time>
+    <a href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" class="article-date">
+  <time datetime="2013-11-11T03:01:59.000Z" itemprop="datePublished">11 11 2013</time>
 </a>
     
   <div class="article-category">
@@ -330,7 +475,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/11/2013-12-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/">解决表单被键盘遮住的问题</a>
+      <a class="article-title" href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/">解决表单被键盘遮住的问题</a>
     </h1>
   
 
@@ -380,7 +525,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/11/2013-12-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" data-id="k5ywp3etn93ok4l6" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" data-id="kszsiu3vh8wb57xd" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -390,10 +537,10 @@
 
 
   
-    <article id="post-2013-12-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2013/12/10/2013-12-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="article-date">
-  <time datetime="2013-12-10T06:59:58.000Z" itemprop="datePublished">Dec 10 2013</time>
+    <a href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="article-date">
+  <time datetime="2013-10-10T06:59:58.000Z" itemprop="datePublished">10 10 2013</time>
 </a>
     
   <div class="article-category">
@@ -408,7 +555,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/10/2013-12-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
+      <a class="article-title" href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
     </h1>
   
 
@@ -431,7 +578,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/10/2013-12-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" data-id="3gwnuiskbw3anxod" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" data-id="qtkfzvab2u5hsx49" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -441,10 +590,10 @@
 
 
   
-    <article id="post-2013-12-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2013/12/10/2013-12-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" class="article-date">
-  <time datetime="2013-12-10T06:56:46.000Z" itemprop="datePublished">Dec 10 2013</time>
+    <a href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" class="article-date">
+  <time datetime="2013-09-10T06:56:46.000Z" itemprop="datePublished">09 10 2013</time>
 </a>
     
   <div class="article-category">
@@ -459,7 +608,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/10/2013-12-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/">个人总结的一些 APP 的代码实践</a>
+      <a class="article-title" href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/">个人总结的一些 APP 的代码实践</a>
     </h1>
   
 
@@ -504,7 +653,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/10/2013-12-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" data-id="gq7r01yxncpvuyzk" class="article-share-link">Share</a>
+      <a data-url="http://www.adad184.com/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" data-id="dyptv1yu1b8n86zp" class="article-share-link">分享到</a>
+      
+        <a href="http://www.adad184.com/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/#ds-thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -514,158 +665,10 @@
 
 
   
-    <article id="post-2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/06/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian/" class="article-date">
-  <time datetime="2013-12-06T08:51:28.000Z" itemprop="datePublished">Dec 6 2013</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/06/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian/">NimbusKit 介绍与使用实践</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="介绍">介绍</h1>
-<p><a href="http://nimbuskit.info/" target="_blank" rel="external">NimbusKit 官网</a><br><a href="https://github.com/jverkoey/nimbus" target="_blank" rel="external">NimbusKit 源码</a></p>
-<p>NimbusKit是一组用于快速开发的iOS框架,是源自<em>Facebook</em>的著名框架<code>Three20</code>的替代者,包括下面几大类的功能</p>
-<ul>
-<li>Attributed Label    -   富文字Label</li>
-<li>Badge - 数字角标</li>
-<li>Interapp - 应用间交互</li>
-<li>Launcher - 类桌面启动器</li>
-<li>Network Image - 网络图片下载显示</li>
-<li>Photo Albums - 相册</li>
-<li>Web Controller - 浏览器</li>
-<li>Table Models - 表格数据模型</li>
-<li>Overview - 直观方便的调试分析内嵌图形工具</li>
-<li>等…</li>
-</ul>
-<p>NimbusKit的demo很直观,编译运行以后就可以体验其强大的功能了</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian2.png" alt="Nimbus Demo"></p>
-<h1 id="使用">使用</h1>
-<p>因为之前的项目的富文本设计要支持<code>iOS5</code>和<code>iOS6</code>,而<code>attributeString</code>特性只有iOS6支持,所以使用了<em>NIAttributedLabel</em></p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian1.PNG" alt="富文本"></p>
-<p>这次新的项目由于有大量的表单页面,考虑到完全自己实现太耗时间,所以又重新考虑了<code>NimbusKit</code>的<code>Table Models</code></p>
-<p>NimbusKit提供的表单组件如下</p>
-<p>|| 组件                                 || 功能             ||<br>||:————————————————:||:——————:||<br>|| NIRadioGroup                     || 多选一         ||<br>|| NITextInputFormElement             || 文本输入         ||<br>|| NISwitchFormElement                 || 开关             ||<br>|| NISliderFormElement                 || 滑动条         ||<br>|| NISegmentedControlFormElement     || 分段             ||<br>|| NIDatePickerFormElement             || 时间选择        ||<br>|| NITitleCellObject                 || 单行文本         ||<br>|| NISubtitleCellObject             || 主副文本         ||<br>|| …                                 || 等其他         ||</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian4.png" alt="基础表单组件"></p>
-<p>这里首先要介绍一下NimbusKit的Table-Modal-Action模型,先上一段简单代码</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">GGJSZController</span> ()</span></div><div class="line">&lt;</div><div class="line"><span class="built_in">UITableViewDelegate</span>,</div><div class="line">UITextFieldDelegate</div><div class="line">&gt;</div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">UITableView</span> *tableView;</div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) NITableViewModel* model;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) NITableViewActions *action;</div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) NIActionBlock queryBlock;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">GGJSZController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)init</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.tableView</span> = [[<span class="built_in">UITableView</span> alloc] initWithFrame:<span class="keyword">self</span><span class="variable">.view</span><span class="variable">.bounds</span> style:UITableViewStyleGrouped];</div><div class="line">        ...</div><div class="line">        ...</div><div class="line">        <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.delegate</span> = <span class="keyword">self</span>;</div><div class="line">        [<span class="keyword">self</span><span class="variable">.view</span> addSubview:<span class="keyword">self</span><span class="variable">.tableView</span>];</div><div class="line">        </div><div class="line">        [<span class="keyword">self</span> configureBlock];</div><div class="line">        [<span class="keyword">self</span> configureForm];</div><div class="line">        </div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)configureBlock</div><div class="line">{</div><div class="line">    __<span class="keyword">weak</span> GGUserController *weakSelf = <span class="keyword">self</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">self</span><span class="variable">.queryBlock</span> = ^<span class="built_in">BOOL</span>(<span class="keyword">id</span> object, <span class="built_in">UIViewController</span> *controller, <span class="built_in">NSIndexPath</span>* indexPath) {</div><div class="line">        </div><div class="line">    	...</div><div class="line">    	...</div><div class="line">    	...</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">    };</div><div class="line">    </div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)configureForm</div><div class="line">{</div><div class="line">    <span class="keyword">self</span><span class="variable">.action</span> = [[NITableViewActions alloc] initWithTarget:<span class="keyword">self</span>];</div><div class="line">    </div><div class="line">    <span class="built_in">NSArray</span>* tableContents =</div><div class="line">    [<span class="built_in">NSArray</span> arrayWithObjects:</div><div class="line">     <span class="string">@"请输入驾驶证号"</span>,</div><div class="line">     [NITextFieldFormElement textFieldElementWithID:<span class="number">0</span> labelText:<span class="string">@"驾驶证号"</span> placeholderText:<span class="string">@"请输入驾驶证号"</span> value:TESTID delegate:<span class="keyword">self</span>],</div><div class="line">     [<span class="keyword">self</span><span class="variable">.action</span> attachToObject:[NITapCellObject objectWithTitle:<span class="string">@"查询"</span> color:COLOR_TAP]</div><div class="line">                 navigationBlock:<span class="keyword">self</span><span class="variable">.queryBlock</span>],</div><div class="line">     <span class="literal">nil</span>];</div><div class="line">    </div><div class="line">    <span class="keyword">self</span><span class="variable">.model</span> = [[NITableViewModel alloc] initWithSectionedArray:tableContents</div><div class="line">                                                         delegate:(<span class="keyword">id</span>)[NICellFactory class]];</div><div class="line">    </div><div class="line">    <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.dataSource</span> = <span class="keyword">self</span><span class="variable">.model</span>;</div><div class="line">    <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.delegate</span> = [<span class="keyword">self</span><span class="variable">.action</span> forwardingTo:<span class="keyword">self</span>];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-<p>这段代码的效果如图</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian3.png" alt="表单效果"></p>
-<p>其关键的地方就是</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) NITableViewModel* model;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) NITableViewActions *action;</div></pre></td></tr></table></figure>
-
-<p><code>NITableViewModel</code> 接管了<code>UITableView</code>的<code>dataSource</code>,并用一种更简单直观的方式创建表格内容,只需要创建对应的tableContents即可生成表单</p>
-<p><code>NITableViewActions</code> 接管了<code>UITableView</code>的<code>delegate</code>,提供了<code>NITableViewModel</code>中已连接对象(attachToObject)对点击事件以<em>block</em>的方式进行响应</p>
-<p><code>NITableViewModel</code>与<code>NITableViewActions</code>的恰当配合则能够生成所需的表单</p>
-<h1 id="自定义表单">自定义表单</h1>
-<p>在日常的开发中,仅仅依靠NimbusKit自带的表单组件肯定是无法完全满足我们的需求的,所以自定义表单组件则是非常必要的功能,而在NimbusKit中自定义表单组件也是非常容易的,比如自带的表单组件中只有独立的Label或者Input组件,并没有像上图那样左边为Label右边为Input的组件,而上图中所见的输入身份证的组件,即为我自定义的表单组件之一,其代码如下</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NITextFieldFormElement</span> : <span class="title">NIFormElement</span></span></div><div class="line"></div><div class="line">+ (<span class="keyword">id</span>)textFieldElementWithID:(<span class="built_in">NSInteger</span>)elementID labelText:(<span class="built_in">NSString</span>*)labelText placeholderText:(<span class="built_in">NSString</span> *)placeholderText value:(<span class="built_in">NSString</span> *)value delegate:(<span class="keyword">id</span>&lt;UITextFieldDelegate&gt;)delegate;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span>* labelText;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span>* placeholderText;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span>* value;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">assign</span>) <span class="keyword">id</span>&lt;UITextFieldDelegate&gt; delegate;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NITextFieldFormElementCell</span> : <span class="title">NIFormElementCell</span> &lt;<span class="title">UITextFieldDelegate</span>&gt;</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readonly</span>, NI_STRONG) GGTextField* textField;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">NITextFieldFormElement</span></span></div><div class="line"></div><div class="line">+ (<span class="keyword">id</span>)textFieldElementWithID:(<span class="built_in">NSInteger</span>)elementID labelText:(<span class="built_in">NSString</span> *)labelText placeholderText:(<span class="built_in">NSString</span> *)placeholderText value:(<span class="built_in">NSString</span> *)value delegate:(<span class="keyword">id</span>&lt;UITextFieldDelegate&gt;)delegate</div><div class="line">{</div><div class="line">    </div><div class="line">    NITextFieldFormElement* element = [<span class="keyword">super</span> elementWithID:elementID];</div><div class="line">    element<span class="variable">.labelText</span> = labelText;</div><div class="line">    element<span class="variable">.placeholderText</span> = placeholderText;</div><div class="line">    element<span class="variable">.value</span> = value;</div><div class="line">    element<span class="variable">.delegate</span> = delegate;</div><div class="line">    <span class="keyword">return</span> element;</div><div class="line">}</div><div class="line"></div><div class="line">- (Class)cellClass {</div><div class="line">    <span class="keyword">return</span> [NITextFieldFormElementCell class];</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">NITextFieldFormElementCell</span></span></div><div class="line"></div><div class="line"><span class="keyword">@synthesize</span> textField = _textField;</div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////////////////////////////////////////////////////////////////</span></div><div class="line">- (<span class="keyword">id</span>)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(<span class="built_in">NSString</span> *)reuseIdentifier {</div><div class="line">    <span class="keyword">if</span> ((<span class="keyword">self</span> = [<span class="keyword">super</span> initWithStyle:style reuseIdentifier:reuseIdentifier])) {</div><div class="line">        <span class="keyword">self</span><span class="variable">.selectionStyle</span> = UITableViewCellSelectionStyleNone;</div><div class="line">        </div><div class="line">        _textField = [[GGTextField alloc] init];</div><div class="line">        [_textField setTag:<span class="keyword">self</span><span class="variable">.element</span><span class="variable">.elementID</span>];</div><div class="line">        [_textField setAdjustsFontSizeToFitWidth:<span class="literal">YES</span>];</div><div class="line">        [_textField setMinimumFontSize:<span class="number">10.0</span>f];</div><div class="line">        [_textField setTextAlignment:NSTextAlignmentRight];</div><div class="line">        [_textField addTarget:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(textFieldDidChangeValue) forControlEvents:UIControlEventAllEditingEvents];</div><div class="line">        [<span class="keyword">self</span><span class="variable">.contentView</span> addSubview:_textField];</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////////////////////////////////////////////////////////////////</span></div><div class="line">- (<span class="keyword">void</span>)layoutSubviews {</div><div class="line">    [<span class="keyword">super</span> layoutSubviews];</div><div class="line">    </div><div class="line">    <span class="built_in">CGFloat</span> labelWidth = <span class="number">80</span>;</div><div class="line">    <span class="built_in">CGRect</span> frame = UIEdgeInsetsInsetRect(<span class="keyword">self</span><span class="variable">.contentView</span><span class="variable">.bounds</span>, UIEdgeInsetsMake(<span class="number">5</span>, <span class="number">10</span>, <span class="number">5</span>, <span class="number">10</span>));</div><div class="line">    frame = CGRectMake(frame<span class="variable">.origin</span><span class="variable">.x</span>+labelWidth, frame<span class="variable">.origin</span><span class="variable">.y</span>, frame<span class="variable">.size</span><span class="variable">.width</span>-labelWidth, frame<span class="variable">.size</span><span class="variable">.height</span>);</div><div class="line">    _textField<span class="variable">.frame</span> = frame;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////////////////////////////////////////////////////////////////</span></div><div class="line">- (<span class="keyword">void</span>)prepareForReuse {</div><div class="line">    [<span class="keyword">super</span> prepareForReuse];</div><div class="line">    </div><div class="line">    <span class="keyword">self</span><span class="variable">.textLabel</span><span class="variable">.text</span> = <span class="literal">nil</span>;</div><div class="line">    </div><div class="line">    _textField<span class="variable">.placeholder</span> = <span class="literal">nil</span>;</div><div class="line">    _textField<span class="variable">.text</span> = <span class="literal">nil</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////////////////////////////////////////////////////////////////</span></div><div class="line">- (<span class="built_in">BOOL</span>)shouldUpdateCellWithObject:(NITextFieldFormElement *)textfieldElement {</div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">super</span> shouldUpdateCellWithObject:textfieldElement]) {</div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.textLabel</span><span class="variable">.text</span> = textfieldElement<span class="variable">.labelText</span>;</div><div class="line">        </div><div class="line">        _textField<span class="variable">.placeholder</span> = textfieldElement<span class="variable">.placeholderText</span>;</div><div class="line">        _textField<span class="variable">.text</span> = textfieldElement<span class="variable">.value</span>;</div><div class="line">        _textField<span class="variable">.delegate</span> = textfieldElement<span class="variable">.delegate</span>;</div><div class="line">        </div><div class="line">        _textField<span class="variable">.tag</span> = <span class="keyword">self</span><span class="variable">.tag</span>;</div><div class="line">        </div><div class="line">        [<span class="keyword">self</span> setNeedsLayout];</div><div class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////////////////////////////////////////////////////////////////</span></div><div class="line">- (<span class="keyword">void</span>)textFieldDidChangeValue {</div><div class="line">    NITextFieldFormElement* textInputElement = (NITextFieldFormElement *)<span class="keyword">self</span><span class="variable">.element</span>;</div><div class="line">    textInputElement<span class="variable">.value</span> = _textField<span class="variable">.text</span>;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-<p>上述代码给出了如何自定义NimbusKit中的表单组件,可见表单组件几乎都是<code>NIFormElement</code>的子类,只要基于此类,定义显示所需的控件到<code>NIFormElement</code>内部,并调整对应位置即可</p>
-<p>至此我们已经知道如何自定义组件了,但是如果有稍微复杂的需求的话,要如何实现呢? </p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian5.png" alt="复杂的自定义组件"></p>
-<p>如图,输入<strong><em>出发城市</em></strong>和<strong><em>目的城市</em></strong>的组件也是一个自定义组件,除了有很多Label和Input之外,其高度也跟普通的组件不一样.</p>
-<p>其实自定义高度很简单,只要重载<code>NICell</code>(比如<code>NITextFieldFormElementCell</code>)的此方法并返回所需的高度</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">+ (<span class="built_in">CGFloat</span>)heightForObject:(<span class="keyword">id</span>)object atIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath tableView:(<span class="built_in">UITableView</span> *)tableView;</div></pre></td></tr></table></figure>
-
-<p>然后在使用的ViewController中调用UITableView的方法</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">CGFloat</span>)tableView:(<span class="built_in">UITableView</span> *)tableView heightForRowAtIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath {</div><div class="line">    <span class="built_in">CGFloat</span> height = tableView<span class="variable">.rowHeight</span>;</div><div class="line">    <span class="keyword">id</span> object = [(NITableViewModel *)tableView<span class="variable">.dataSource</span> objectAtIndexPath:indexPath];</div><div class="line">    <span class="keyword">id</span> class = [object cellClass];</div><div class="line">    <span class="keyword">if</span> ([class respondsToSelector:<span class="keyword">@selector</span>(heightForObject:atIndexPath:tableView:)]) {</div><div class="line">        height = [class heightForObject:object atIndexPath:indexPath tableView:tableView];</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> height;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>即可自定义此组件的高度了(其实直接在上述方法中直接返回对应的高度即可,但是上述代码则有很高的通用性)</p>
-<h1 id="小结">小结</h1>
-<p>至此,我们已经了解了<code>NimbusKit</code>的基本功能和如何对其表单模型进行自定义.</p>
-<p>除了此次着重介绍的Table-Action模型之外,其实<code>NimbusKit</code>还有很多值得使用的功能,如<strong>Launcher</strong>功能,<strong>Overview</strong>功能,实用且集成起来很简单,在这就不一一介绍了.</p>
-<p>最后,简单介绍一下NimbusKit的作者<a href="http://jeffverkoeyen.com/" target="_blank" rel="external">Jeff Verkoeyen</a>,其主要作品有:</p>
-<ul>
-<li>Facebook for iPad ( June 2010 - June 2011 )</li>
-<li>Google Maps for iPhone ( June 2012 - April 2013 )</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/06/2013-12-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian/" data-id="b7ymd3ssgwpfus9q" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2013-12-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/05/2013-12-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" class="article-date">
-  <time datetime="2013-12-05T08:41:39.000Z" itemprop="datePublished">Dec 5 2013</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/05/2013-12-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/">如何让 UITableViewCell 中的 imageView 大小固定</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>UITableView</code>可以算是使用频率最高的组件之一的,在开发过程中经常需要展示一些简单的信息列表</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06%2013.33.25.png" alt="常见列表布局"></p>
-<p>如图,很多页面其实就是这种展示结果,通常需要<code>imageView</code>,<code>textLabel</code>,<code>detailTextlabel</code>,而<code>UITableViewCell</code>本身提供了方便的自动布局(当有图片和没图片时,textLabel和detailLabel的位置会左右自动调整). 但是图片的大小却是没有办法固定的(直接设置<code>imageView.frame</code>是无法固定<code>imageView</code>的大小的),那么一般来说解决这个问题的办法有两种:</p>
-<ul>
-<li>固定显示图片的大小(包括PlaceHolder)</li>
-<li>自定义tableViewCell,添加自定义的<code>imageView</code>,<code>textLabel</code>和<code>detailTextLabel</code></li>
-</ul>
-<p>这两种方式都可以解决这个问题,但是这两种方式其实都挺麻烦的,能否直接固定imageView的大小呢? 方法是有的,只需要重载<code>layoutSubviews</code>即可</p>
-<figure class="highlight objc"><figcaption><span>派生UITableViewCell</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//自定义一个Cell</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMCell</span> : <span class="title">UITableViewCell</span></span></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMCell</span></span></div><div class="line"></div><div class="line"><span class="comment">//重载layoutSubviews</span></div><div class="line">- (<span class="keyword">void</span>)layoutSubviews</div><div class="line">{</div><div class="line">    <span class="built_in">UIImage</span> *img = <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span>;</div><div class="line">    <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span> = [<span class="built_in">UIImage</span> imageName:<span class="string">@"res/PlaceHolder.png"</span>];</div><div class="line">    [<span class="keyword">super</span> layoutSubviews];</div><div class="line">    <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span> = img;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-
-
-<p>这样,我们只要使用<code>MMCell</code>就可以固定<code>imageView</code>的大小了,且大小为<code>PlaceHolder.png</code>的大小(一般来说这种页面都会使用一个<code>PlaceHolder.png</code>来显示默认图片).</p>
-<p>原理是在<code>UItableVeiw</code>的<code>layoutSubviews</code>调用时,会根据<code>imageView.image</code>的大小来调整<code>imageView</code>,<code>textLabel</code>,<code>detailTextLabel</code>的位置,在此之前我们先将<code>imageView.image</code>设置为<code>PlaceHolder.png</code>图片,等待重新布局完后再将原本的图片设置回去就可以了</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/05/2013-12-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" data-id="j3dauz9g4m7fnhea" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
+    </nav>
   
 </section>
         
@@ -673,9 +676,9 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
+    <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/开源项目/">开源项目</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技巧心得/">技巧心得</a><span class="category-list-count">6</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/开源项目/">开源项目</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技巧心得/">技巧心得</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/生活琐碎/">生活琐碎</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/经验介绍/">经验介绍</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -686,18 +689,26 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
+    <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08">August 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12">December 2013</a><span class="archive-list-count">8</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08">2014 08</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01">2014 01</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12">2013 12</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11">2013 11</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10">2013 10</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09">2013 09</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/08">2013 08</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/07">2013 07</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recents</h3>
+    <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2014/08/27/alipay-sdk-sucks/">支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/08/27/hello-my-baby/">hello my baby</a>
+          </li>
         
           <li>
             <a href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/">如何快速的删除mac上imessage里的(垃圾)信息</a>
@@ -708,15 +719,34 @@
           </li>
         
           <li>
-            <a href="/2013/12/31/2013-12-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
+            <a href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">我的链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="https://github.com/adad184" target="_blank">Github</a>
           </li>
         
           <li>
-            <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/">解决表单被键盘遮住的问题(续)</a>
+            <a href="http://stackoverflow.com/users/1340076/adali" target="_blank">StackOverflow</a>
           </li>
         
           <li>
-            <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/">完美解决 interactivePopGestureRecognizer 卡住的问题</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+          </li>
+        
+          <li>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
       </ul>
@@ -732,7 +762,9 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2014 adad184<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://zespia.tw/hexo/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape+</a>
     </div>
   </div>
 </footer>
@@ -745,14 +777,26 @@
   
 </nav>
     
+<!-- Duoshuo start -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"adad184"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- Duoshuo end -->
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
-
-  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
-
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
 <script src="/js/script.js" type="text/javascript"></script>

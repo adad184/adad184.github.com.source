@@ -3,7 +3,7 @@ layout: post
 title: "开源项目:MMPlaceHolder"
 date: 2014-08-21 12:17:14 +0800
 comments: true
-categories: 技巧心得 
+categories: 开源项目 
 keywords: 
 description: 
 ---

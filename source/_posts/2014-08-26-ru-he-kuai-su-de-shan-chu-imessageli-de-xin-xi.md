@@ -3,7 +3,7 @@ layout: post
 title: "如何快速的删除mac上imessage里的(垃圾)信息"
 date: 2014-08-26 08:51:34 +0800
 comments: true
-categories: 
+categories: 技巧心得
 keywords: 
 description: 
 ---

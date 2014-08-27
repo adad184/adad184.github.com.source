@@ -3,7 +3,7 @@ layout: post
 title: "解决表单被键盘遮住的问题(续)"
 date: 2013-12-19 16:31:34 +0800
 comments: true
-categories: 
+categories: 技巧心得
 keywords: 
 description: 
 ---
