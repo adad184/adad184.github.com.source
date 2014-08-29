@@ -1,0 +1,2 @@
+rm -rf .deploy/
+hexo generate ; hexo deploy

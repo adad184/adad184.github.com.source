@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2013/12 | 里脊串的开发随笔</title>
+  <title>文章归档: 2013/12 | 里脊串的开发随笔</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description">
 <meta property="og:type" content="website">
@@ -19,13 +19,14 @@
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
   <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -46,9 +47,11 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">首页</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       <nav id="sub-nav">
@@ -73,104 +76,57 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" class="article-date">
-  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">12 19 2013</time>
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2013" class="archive-year">2013</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" class="archive-article-date">
+  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">12 19</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/">解决表单被键盘遮住的问题(续)</a>
+      <a class="archive-article-title" href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/">解决表单被键盘遮住的问题(续)</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>刚才检查代码的时候 发现了之前代码的一些问题 这里做一下修正 为此我为UIView和UITableView各新增了一个Category方法</p>
-<figure class="highlight objc"><figcaption><span>UIView的Category</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>) haveSubview:(<span class="built_in">UIView</span>*)subView</div><div class="line">{</div><div class="line">    <span class="built_in">UIView</span> *v = subView;</div><div class="line">    </div><div class="line">    <span class="keyword">while</span> (v)</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( <span class="keyword">self</span> == v )</div><div class="line">        {</div><div class="line">            <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">        }</div><div class="line">        </div><div class="line">        v = v<span class="variable">.superview</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight objc"><figcaption><span>UITableVIew的Category方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>) haveSubview:(<span class="built_in">UIView</span>*)subView</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( v && [<span class="keyword">self</span> haveSubview:v] )</div><div class="line">    {</div><div class="line">        <span class="keyword">while</span> ( v && ![[v class] isSubclassOfClass:[<span class="built_in">UITableViewCell</span> class]]) {</div><div class="line">            v = v<span class="variable">.superview</span>;</div><div class="line">        }</div><div class="line">        </div><div class="line">        <span class="keyword">if</span> ( v )</div><div class="line">        {</div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,NSStringFromClass(v<span class="variable">.class</span>));</div><div class="line">            </div><div class="line">            <span class="built_in">UITableViewCell</span> *cell = (<span class="built_in">UITableViewCell</span>*)v;</div><div class="line">            </div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,[<span class="keyword">self</span> indexPathForCell:cell]);</div><div class="line">            </div><div class="line">            [<span class="keyword">self</span> scrollToRowAtIndexPath:[<span class="keyword">self</span> indexPathForRowAtPoint:cell<span class="variable">.center</span>] atScrollPosition:UITableViewScrollPositionBottom animated:<span class="literal">YES</span>];</div><div class="line">        }</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这样 当我们需要处理弹出键盘时 就只需要如此调用就可以了</p>
-<figure class="highlight objc"><figcaption><span>调用方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">UIView</span> *v = [UIResponder currentFirstResponder];</div><div class="line">[<span class="keyword">self</span><span class="variable">.tableView</span> scrollToView:v];</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" data-id="nfeljs4qned3yzuu" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" class="article-date">
-  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">12 12 2013</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" class="archive-article-date">
+  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">12 12</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/">完美解决 interactivePopGestureRecognizer 卡住的问题</a>
+      <a class="archive-article-title" href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/">完美解决 interactivePopGestureRecognizer 卡住的问题</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>interactivePopGestureRecognizer</code>是iOS7推出的解决<code>VeiwController</code>滑动后退的新功能,虽然很实用,但是坑也很多啊,用过的同学肯定知道问题在哪里,所以具体问题我就不描述了,这里只给出如何完美解决<code>interactivePopGestureRecognizer</code>卡住的问题.</p>
-<p>当然我们要自定义UINavigationController来解决这个问题:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="preprocessor">#import <span class="title">"MMNavController.h"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMNavController</span> ()</span></div><div class="line">{</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMNavController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)initWithRootViewController:(<span class="built_in">UIViewController</span> *)rootViewController</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithRootViewController:rootViewController];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        <span class="comment">// Custom initialization</span></div><div class="line">        </div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    </div><div class="line">    __<span class="keyword">weak</span> MMNavController *weakSelf = <span class="keyword">self</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">    }</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)pushViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [<span class="keyword">super</span> pushViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToRootViewControllerAnimated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span>  [<span class="keyword">super</span> popToRootViewControllerAnimated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span>( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> popToViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="preprocessor">#pragma mark UINavigationControllerDelegate</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)navigationController:(<span class="built_in">UINavigationController</span> *)navigationController</div><div class="line">       didShowViewController:(<span class="built_in">UIViewController</span> *)viewController</div><div class="line">                    animated:(<span class="built_in">BOOL</span>)animate</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">YES</span>;</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">-(<span class="built_in">BOOL</span>)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( gestureRecognizer == <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( <span class="keyword">self</span><span class="variable">.viewControllers</span><span class="variable">.count</span> &lt; <span class="number">2</span> || <span class="keyword">self</span><span class="variable">.visibleViewController</span> == [<span class="keyword">self</span><span class="variable">.viewControllers</span> objectAtIndex:<span class="number">0</span>] )</div><div class="line">        {</div><div class="line">            <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">        }</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" data-id="3okmchpqgc13jfm9" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
+  
+    </div></section>
   
 </section>
         
@@ -244,11 +200,11 @@
           </li>
         
           <li>
-            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
           <li>
-            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
           </li>
         
       </ul>
@@ -273,9 +229,11 @@
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
   
 </nav>
     

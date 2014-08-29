@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2013/10 | 里脊串的开发随笔</title>
+  <title>文章归档: 2013/10 | 里脊串的开发随笔</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description">
 <meta property="og:type" content="website">
@@ -19,13 +19,14 @@
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
   <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -46,9 +47,11 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">首页</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       <nav id="sub-nav">
@@ -73,59 +76,37 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="article-date">
-  <time datetime="2013-10-10T06:59:58.000Z" itemprop="datePublished">10 10 2013</time>
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2013" class="archive-year">2013</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="archive-article-date">
+  <time datetime="2013-10-10T06:59:58.000Z" itemprop="datePublished">10 10</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
+      <a class="archive-article-title" href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>ModalViewController</code>是经常会用到的展现<code>ViewController</code>的方式,而显示和收起<code>ModalViewController</code>也是很简单的</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (<span class="keyword">void</span>)presentViewController:(<span class="built_in">UIViewController</span> *)viewControllerToPresent animated: (<span class="built_in">BOOL</span>)flag completion:(<span class="keyword">void</span> (^)(<span class="keyword">void</span>))completion NS_AVAILABLE_IOS(<span class="number">5</span>_0);</div><div class="line">- (<span class="keyword">void</span>)dismissViewControllerAnimated: (<span class="built_in">BOOL</span>)flag completion: (<span class="keyword">void</span> (^)(<span class="keyword">void</span>))completion NS_AVAILABLE_IOS(<span class="number">5</span>_0);</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)presentModalViewController:(<span class="built_in">UIViewController</span> *)modalViewController animated:(<span class="built_in">BOOL</span>)animated NS_DEPRECATED_IOS(<span class="number">2</span>_0, <span class="number">6</span>_0);</div><div class="line">- (<span class="keyword">void</span>)dismissModalViewControllerAnimated:(<span class="built_in">BOOL</span>)animated NS_DEPRECATED_IOS(<span class="number">2</span>_0, <span class="number">6</span>_0);</div></pre></td></tr></table></figure>
-
-<p>但是有的时候我们的需求很特殊,比如在一个<code>ModalViewController</code>里要present另一个<code>ModalViewController</code>,甚至再present一个<code>ModalViewController</code>,<strong>然后</strong>可能在某个时候APP发出一条消息,需要一下子dismiss掉所有的<code>ModalViewController</code>(比如你在使用过程中,突然APP检测到你的登录状态异常,需要重新登录,这个时候所有的页面都需要消失),这时候该如何办呢?</p>
-<p>正巧我现在正在做的项目遇到了这个问题,所以研究了一下,得到了以下的解决办法:</p>
-<p>首先,必须知道现在整个APP最顶层的<code>ViewController</code>是哪个,我的做法是在每个<code>ViewController</code>的<code>viewWillAppear</code>中记录一下,当然这个操作是自动完成的,因为每个项目,我都会从<code>UIViewController</code>派生一个子类,然后再从这个子类派生所有的<code>ViewController</code>方便管理.</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMViewController</span> : <span class="title">UIViewController</span></span></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMViewController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    APP<span class="variable">.presentingController</span> = <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-<p>得到了顶层的<code>ViewController</code>以后,事情就简单了,我们只要追根溯源,找到最底层的<code>ViewController</code>就行了</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">if</span> ( APP<span class="variable">.presentingController</span> )</div><div class="line">{</div><div class="line">    <span class="built_in">UIViewController</span> *vc = <span class="keyword">self</span><span class="variable">.presentingController</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( !vc<span class="variable">.presentingViewController</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">while</span> (vc<span class="variable">.presentingViewController</span>)</div><div class="line">    {</div><div class="line">        vc = vc<span class="variable">.presentingViewController</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [vc dismissViewControllerAnimated:<span class="literal">YES</span> completion:^{</div><div class="line"></div><div class="line">    }];</div><div class="line">    </div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" data-id="qtkfzvab2u5hsx49" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
+  
+    </div></section>
   
 </section>
         
@@ -199,11 +180,11 @@
           </li>
         
           <li>
-            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
           <li>
-            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
           </li>
         
       </ul>
@@ -228,9 +209,11 @@
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
   
 </nav>
     

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2013/7 | 里脊串的开发随笔</title>
+  <title>文章归档: 2013/7 | 里脊串的开发随笔</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description">
 <meta property="og:type" content="website">
@@ -19,13 +19,14 @@
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
   <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -46,9 +47,11 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">首页</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       <nav id="sub-nav">
@@ -73,62 +76,37 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" class="article-date">
-  <time datetime="2013-07-05T08:41:39.000Z" itemprop="datePublished">07 05 2013</time>
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2013" class="archive-year">2013</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" class="archive-article-date">
+  <time datetime="2013-07-05T08:41:39.000Z" itemprop="datePublished">07 05</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/">如何让 UITableViewCell 中的 imageView 大小固定</a>
+      <a class="archive-article-title" href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/">如何让 UITableViewCell 中的 imageView 大小固定</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>UITableView</code>可以算是使用频率最高的组件之一的,在开发过程中经常需要展示一些简单的信息列表</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-06%2013.33.25.png" alt="常见列表布局"></p>
-<p>如图,很多页面其实就是这种展示结果,通常需要<code>imageView</code>,<code>textLabel</code>,<code>detailTextlabel</code>,而<code>UITableViewCell</code>本身提供了方便的自动布局(当有图片和没图片时,textLabel和detailLabel的位置会左右自动调整). 但是图片的大小却是没有办法固定的(直接设置<code>imageView.frame</code>是无法固定<code>imageView</code>的大小的),那么一般来说解决这个问题的办法有两种:</p>
-<ul>
-<li>固定显示图片的大小(包括PlaceHolder)</li>
-<li>自定义tableViewCell,添加自定义的<code>imageView</code>,<code>textLabel</code>和<code>detailTextLabel</code></li>
-</ul>
-<p>这两种方式都可以解决这个问题,但是这两种方式其实都挺麻烦的,能否直接固定imageView的大小呢? 方法是有的,只需要重载<code>layoutSubviews</code>即可</p>
-<figure class="highlight objc"><figcaption><span>派生UITableViewCell</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//自定义一个Cell</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMCell</span> : <span class="title">UITableViewCell</span></span></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMCell</span></span></div><div class="line"></div><div class="line"><span class="comment">//重载layoutSubviews</span></div><div class="line">- (<span class="keyword">void</span>)layoutSubviews</div><div class="line">{</div><div class="line">    <span class="built_in">UIImage</span> *img = <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span>;</div><div class="line">    <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span> = [<span class="built_in">UIImage</span> imageName:<span class="string">@"res/PlaceHolder.png"</span>];</div><div class="line">    [<span class="keyword">super</span> layoutSubviews];</div><div class="line">    <span class="keyword">self</span><span class="variable">.imageView</span><span class="variable">.image</span> = img;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-
-
-<p>这样,我们只要使用<code>MMCell</code>就可以固定<code>imageView</code>的大小了,且大小为<code>PlaceHolder.png</code>的大小(一般来说这种页面都会使用一个<code>PlaceHolder.png</code>来显示默认图片).</p>
-<p>原理是在<code>UItableVeiw</code>的<code>layoutSubviews</code>调用时,会根据<code>imageView.image</code>的大小来调整<code>imageView</code>,<code>textLabel</code>,<code>detailTextLabel</code>的位置,在此之前我们先将<code>imageView.image</code>设置为<code>PlaceHolder.png</code>图片,等待重新布局完后再将原本的图片设置回去就可以了</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" data-id="5pjhaqv0pfolpg7v" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
+  
+    </div></section>
   
 </section>
         
@@ -202,11 +180,11 @@
           </li>
         
           <li>
-            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
           <li>
-            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
           </li>
         
       </ul>
@@ -231,9 +209,11 @@
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
   
 </nav>
     

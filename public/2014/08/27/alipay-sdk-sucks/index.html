@@ -7,35 +7,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="前言
 支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)但是跑到官方论坛一看 都是各种各样的问题 以及千篇一律的解答
-这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了
-如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android">
+这里不谈如何集成和使用SDK 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 运气不错
+如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张an">
 <meta property="og:type" content="article">
 <meta property="og:title" content="支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)">
 <meta property="og:url" content="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/">
 <meta property="og:site_name" content="里脊串的开发随笔">
 <meta property="og:description" content="前言
 支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)但是跑到官方论坛一看 都是各种各样的问题 以及千篇一律的解答
-这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了
-如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android">
+这里不谈如何集成和使用SDK 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 运气不错
+如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张an">
 <meta property="og:image" content="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-alipay-sdk-sucks.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)">
 <meta name="twitter:description" content="前言
 支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)但是跑到官方论坛一看 都是各种各样的问题 以及千篇一律的解答
-这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了
-如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android">
+这里不谈如何集成和使用SDK 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 运气不错
+如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张an">
 
   
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
   <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -56,9 +57,11 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">首页</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       <nav id="sub-nav">
@@ -109,7 +112,7 @@
       
         <h1 id="前言">前言</h1>
 <p>支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)<br>但是跑到<a href="http://club.alipay.com/thread-htm-fid-703-page-6.html" target="_blank" rel="external">官方论坛</a>一看 都是各种各样的问题 以及千篇一律的解答</p>
-<p>这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了</p>
+<p>这里不谈如何集成和使用SDK 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 运气不错</p>
 <p>如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android的图凑数)</p>
 <p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-alipay-sdk-sucks.png" alt="问题截图"></p>
 <h1 id="问题">问题</h1>
@@ -144,7 +147,7 @@
     <footer class="article-footer">
       <a data-url="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/" data-id="he50whj4y03697ru" class="article-share-link">分享到</a>
       
-        <a href="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/#ds-thread" class="article-comment-link">Comments</a>
+        <a href="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/#ds-thread" class="article-comment-link">文章评论</a>
       
       
     </footer>
@@ -168,6 +171,7 @@
   <section id="comments">
     <div id="ds-thread" class="ds-thread" data-thread-key="2014/08/27/alipay-sdk-sucks/" data-title="支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)" data-url="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/"></div>
   </section>
+
 </section>
         
           <aside id="sidebar">
@@ -240,11 +244,11 @@
           </li>
         
           <li>
-            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
           <li>
-            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
           </li>
         
       </ul>
@@ -269,9 +273,11 @@
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
   
 </nav>
     

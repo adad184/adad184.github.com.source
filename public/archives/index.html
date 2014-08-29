@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives | 里脊串的开发随笔</title>
+  <title>文章归档 | 里脊串的开发随笔</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description">
 <meta property="og:type" content="website">
@@ -19,13 +19,14 @@
     <link rel="alternative" href="/atom.xml" title="里脊串的开发随笔" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 
   <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
 </head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -46,9 +47,11 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">首页</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       <nav id="sub-nav">
@@ -73,602 +76,267 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-alipay-sdk-sucks" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/08/27/alipay-sdk-sucks/" class="article-date">
-  <time datetime="2014-08-27T08:39:45.000Z" itemprop="datePublished">08 27 2014</time>
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2014" class="archive-year">2014</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2014/08/27/alipay-sdk-sucks/" class="archive-article-date">
+  <time datetime="2014-08-27T08:39:45.000Z" itemprop="datePublished">08 27</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/08/27/alipay-sdk-sucks/">支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)</a>
+      <a class="archive-article-title" href="/2014/08/27/alipay-sdk-sucks/">支付宝iOS SDK的那些坑(系统繁忙，请稍后再试)</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言">前言</h1>
-<p>支付宝的iOS SDK真是个奇葩的存在 按理说这么重要的SDK 理应提供详尽的文档和技术支持(虽然说实际使用较简单)<br>但是跑到<a href="http://club.alipay.com/thread-htm-fid-703-page-6.html" target="_blank" rel="external">官方论坛</a>一看 都是各种各样的问题 以及千篇一律的解答</p>
-<p>这里不谈如何继承 只谈问题 如果你按照官方文档一步一步的调试发现任何问题没有 那么 恭喜你 都会抢答了</p>
-<p>如果你跟我一样 遇到跳转支付时现实”系统繁忙,请稍后再试” 的问题(如图 没截到iOS的 找了一张android的图凑数)</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-alipay-sdk-sucks.png" alt="问题截图"></p>
-<h1 id="问题">问题</h1>
-<p>官方示例中支付相关的代码</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//构造订单</span></div><div class="line"><span class="built_in">NSString</span> *appScheme = <span class="string">@"AlipaySdkDemo"</span>;</div><div class="line"><span class="built_in">NSString</span>* orderInfo = [<span class="keyword">self</span> getOrderInfo:indexPath<span class="variable">.row</span>];</div><div class="line"><span class="built_in">NSString</span>* signedStr = [<span class="keyword">self</span> doRsa:orderInfo];</div><div class="line"></div><div class="line"><span class="comment">//形成订单参数</span></div><div class="line"><span class="built_in">NSString</span> *orderString = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@&sign=\"%@\"&sign_type=\"%@\""</span>,</div><div class="line">                         orderInfo, signedStr, <span class="string">@"RSA"</span>];</div><div class="line"></div><div class="line"><span class="comment">//调用支付借口</span></div><div class="line">[AlixLibService payOrder:orderString AndScheme:appScheme seletor:_result target:<span class="keyword">self</span>];</div></pre></td></tr></table></figure>
-
-<p>问题就出在<code>orderInfo</code>这里 那么<code>orderInfo</code>是什么呢?</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">-(<span class="built_in">NSString</span>*)getOrderInfo:(<span class="built_in">NSInteger</span>)index</div><div class="line">{</div><div class="line">    <span class="comment">/*</span></div><div class="line">     *点击获取prodcut实例并初始化订单信息</div><div class="line">     */</div><div class="line">    Product *product = [_products objectAtIndex:index];    </div><div class="line">    AlixPayOrder *order = [[AlixPayOrder alloc] init];</div><div class="line">    order<span class="variable">.partner</span> = PartnerID;</div><div class="line">    order<span class="variable">.seller</span> = SellerID;</div><div class="line"></div><div class="line">    order<span class="variable">.tradeNO</span> = [<span class="keyword">self</span> generateTradeNO]; <span class="comment">//订单ID（由商家自行制定）</span></div><div class="line">    order<span class="variable">.productName</span> = product<span class="variable">.subject</span>; <span class="comment">//商品标题</span></div><div class="line">    order<span class="variable">.productDescription</span> = product<span class="variable">.body</span>; <span class="comment">//商品描述</span></div><div class="line">    order<span class="variable">.amount</span> = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%.2f"</span>,product<span class="variable">.price</span>]; <span class="comment">//商品价格</span></div><div class="line">    order<span class="variable">.notifyURL</span> =  <span class="string">@"http%3A%2F%2Fwwww.xxx.com"</span>; <span class="comment">//回调URL</span></div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [order description];</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>可以到看<code>orderInfo</code>就是<code>AlixPayOrder</code>的字符串化 再看看其description函数</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (<span class="built_in">NSString</span> *)description {</div><div class="line">    <span class="built_in">NSMutableString</span> * discription = [<span class="built_in">NSMutableString</span> string];</div><div class="line">    [discription appendFormat:<span class="string">@"partner=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.partner</span> ? <span class="keyword">self</span><span class="variable">.partner</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&seller_id=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.seller</span> ? <span class="keyword">self</span><span class="variable">.seller</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&out_trade_no=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.tradeNO</span> ? <span class="keyword">self</span><span class="variable">.tradeNO</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&subject=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.productName</span> ? <span class="keyword">self</span><span class="variable">.productName</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&body=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.productDescription</span> ? <span class="keyword">self</span><span class="variable">.productDescription</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&total_fee=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.amount</span> ? <span class="keyword">self</span><span class="variable">.amount</span> : <span class="string">@""</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&notify_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.notifyURL</span> ? <span class="keyword">self</span><span class="variable">.notifyURL</span> : <span class="string">@""</span>];</div><div class="line">    </div><div class="line">    [discription appendFormat:<span class="string">@"&service=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.serviceName</span> ? <span class="keyword">self</span><span class="variable">.serviceName</span> : <span class="string">@"mobile.securitypay.pay"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&_input_charset=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.inputCharset</span> ? <span class="keyword">self</span><span class="variable">.inputCharset</span> : <span class="string">@"utf-8"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&payment_type=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.paymentType</span> ? <span class="keyword">self</span><span class="variable">.paymentType</span> : <span class="string">@"1"</span>];</div><div class="line"></div><div class="line">    <span class="comment">//下面的这些参数，如果没有必要（value为空），则无需添加</span></div><div class="line">    [discription appendFormat:<span class="string">@"&return_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.returnUrl</span> ? <span class="keyword">self</span><span class="variable">.returnUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&it_b_pay=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.itBPay</span> ? <span class="keyword">self</span><span class="variable">.itBPay</span> : <span class="string">@"1d"</span>];</div><div class="line">    [discription appendFormat:<span class="string">@"&show_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.showUrl</span> ? <span class="keyword">self</span><span class="variable">.showUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line"></div><div class="line">    </div><div class="line">    <span class="keyword">for</span> (<span class="built_in">NSString</span> * key <span class="keyword">in</span> [<span class="keyword">self</span><span class="variable">.extraParams</span> allKeys]) {</div><div class="line">        [discription appendFormat:<span class="string">@"&%@=\"%@\""</span>, key, [<span class="keyword">self</span><span class="variable">.extraParams</span> objectForKey:key]];</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> discription;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>我猜问题可能出现在这里</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[discription appendFormat:<span class="string">@"&return_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.returnUrl</span> ? <span class="keyword">self</span><span class="variable">.returnUrl</span> : <span class="string">@"www.xxx.com"</span>];</div><div class="line">[discription appendFormat:<span class="string">@"&it_b_pay=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.itBPay</span> ? <span class="keyword">self</span><span class="variable">.itBPay</span> : <span class="string">@"1d"</span>];</div><div class="line">[discription appendFormat:<span class="string">@"&show_url=\"%@\""</span>, <span class="keyword">self</span><span class="variable">.showUrl</span> ? <span class="keyword">self</span><span class="variable">.showUrl</span> : <span class="string">@"www.xxx.com"</span>];</div></pre></td></tr></table></figure>
-
-<p>可能是这种莫名其妙的默认值导致了问题的出现(代码里注释了无需添加 可为啥官方demo是没有问题的?)<br><code>orderInfo</code>也不过是一堆参数的拼凑而已 同时 我求证了同事在android的sdk里 参数也都是手工拼凑的 那么将必填参数自行组织一下 应该就可以了</p>
-<h1 id="方案">方案</h1>
-<p>经过实践 只需要填下下面出现的这些参数 就没有问题了</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">-(<span class="built_in">NSString</span>*)getOrderInfo</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="built_in">NSMutableString</span> * discription = [<span class="built_in">NSMutableString</span> string] ;</div><div class="line">    [discription appendFormat:<span class="string">@"partner=\"%@\""</span>, PartnerID];</div><div class="line">    [discription appendFormat:<span class="string">@"&seller_id=\"%@\""</span>, SellerID];</div><div class="line">    [discription appendFormat:<span class="string">@"&out_trade_no=\"%@\""</span>, [<span class="keyword">self</span> getOrderID]];</div><div class="line">    [discription appendFormat:<span class="string">@"&subject=\"%@\""</span>, yourSubject];</div><div class="line">    [discription appendFormat:<span class="string">@"&body=\"%@\""</span>, yourBody];</div><div class="line">    [discription appendFormat:<span class="string">@"&total_fee=\"%@\""</span>, yourPrice];</div><div class="line">    [discription appendFormat:<span class="string">@"&notify_url=\"%@\""</span>, yourHandleAction];</div><div class="line">    [discription appendFormat:<span class="string">@"&service=\"%@\""</span>, <span class="string">@"mobile.securitypay.pay"</span>];</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> discription;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h1 id="尾声">尾声</h1>
-<p>当然 回过头来看 问题有这么几个</p>
-<ul>
-<li>官方demo写得不严谨 且注释太少</li>
-<li>官方文档写没有指出相关问题 以及对相应参数的解释(对于参数,仅提到了一句”<strong>支付参数提交时,需要组装订单信息 orderInfo,其中 参数以 key=”value”形式呈现,参数之间以“&amp;”分割, 获取 Alipay 支付对象调用支付。</strong>“”)</li>
-<li>官方论坛没有相应的技术支持</li>
-</ul>
-<p>结论就是: 坑爹</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/" data-id="he50whj4y03697ru" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2014/08/27/alipay-sdk-sucks/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-hello-my-baby" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/08/27/hello-my-baby/" class="article-date">
-  <time datetime="2014-08-27T08:21:14.000Z" itemprop="datePublished">08 27 2014</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2014/08/27/hello-my-baby/" class="archive-article-date">
+  <time datetime="2014-08-27T08:21:14.000Z" itemprop="datePublished">08 27</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/生活琐碎/">生活琐碎</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/08/27/hello-my-baby/">hello my baby</a>
+      <a class="archive-article-title" href="/2014/08/27/hello-my-baby/">hello my baby</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-27-hello-my-baby.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/27/hello-my-baby/" data-id="5cizvw40ttal18vq" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2014/08/27/hello-my-baby/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" class="article-date">
-  <time datetime="2014-08-26T00:51:34.000Z" itemprop="datePublished">08 26 2014</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" class="archive-article-date">
+  <time datetime="2014-08-26T00:51:34.000Z" itemprop="datePublished">08 26</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/">如何快速的删除mac上imessage里的(垃圾)信息</a>
+      <a class="archive-article-title" href="/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/">如何快速的删除mac上imessage里的(垃圾)信息</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言">前言</h1>
-<p>imessage现在处于一个非常鸡肋的状态 开了无用 关了可惜 而且貌似跟中国的运营商还有点点冲突(经常各种群发短信的时候夹杂着imessage 对方就收不到) </p>
-<p>当然有垃圾就要清除 手机上还好 看到了顺手左划就删掉了 但是倒霉的是在mac不会同步被删除 而且万一你从没没用过mac上的<code>Messages</code>这个服务 赶紧去点开 有惊喜</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi2.png" alt="imessage"></p>
-<p>恩 是的 你肯定发现这个东东已经成了各种小广告的垃圾场</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi.png" alt="imessage"></p>
-<p>ok 是时候准备删除了(强迫症你别理我) 于是 点X - 确认删除 - 点X - 确认删除 …… 当重复了十几遍以后 你会觉得这样太煞笔了 这几百条的垃圾 删除到什么时候去?  shift批量选择? 你试试支持么(这个特性不支持确实有点不合理)</p>
-<p>那么如何快速的删除imessage里的信息呢?</p>
-<h1 id="方法">方法</h1>
-<ul>
-<li>方法一 快速删除单条记录</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">组合键 option+command+delete(大的那个 小键盘不管用)</div></pre></td></tr></table></figure>
-
-<p>这样可以快速的删除单挑 好处是可以选择要保留的</p>
-<ul>
-<li>方法二 快速清空所有记录</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">退出messages应用</div><div class="line">rm -r ~/Library/Messages/chat.*</div><div class="line">重启messages</div></pre></td></tr></table></figure>
-
-
-<p>据说这个方法可以清空所有信息 但是由于我测试的时候没有推出messages就直接删除文件了 导致我重启了以后所有信息都还在(汗 这是为什么 明明文件删除了) 所以我不确定这个方法是否在10.9上面还有效</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/" data-id="709k1jiazuatzo55" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2014/08/26/2014-08-26-ru-he-kuai-su-de-shan-chu-imessageli-de-xin-xi/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2014-08-21-kai-yuan-xiang-mu-mmplaceholder" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" class="article-date">
-  <time datetime="2014-08-21T04:17:14.000Z" itemprop="datePublished">08 21 2014</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" class="archive-article-date">
+  <time datetime="2014-08-21T04:17:14.000Z" itemprop="datePublished">08 21</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/开源项目/">开源项目</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/">开源项目:MMPlaceHolder</a>
+      <a class="archive-article-title" href="/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/">开源项目:MMPlaceHolder</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言">前言</h1>
-<p>最近在做一个新的项目 免不了又要跟UI打交道 之前N多的经验告诉我 为了达到设计图上的100%Copy 避免不了在切图的<code>尺寸</code>和<code>位置</code>上花大量的时间 (为什么不按美术切给你的尺寸来? 这… 只能说美术很难跟我达到天人合一… ( ͡° ͜ʖ ͡°)</p>
-<p>那么能不能以实际的效果告诉设计师尺寸和位置呢?  如下面这样就皆大欢喜啦</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2014-08-21-kai-yuan-xiang-mu-mmplaceholder-1.png" alt="效果"></p>
-<p>当然 很早之前就已经有前人做过这种事情了 比如</p>
-<p><a href="https://github.com/dhennessy/PAPlaceholder" target="_blank" rel="external">PAPlaceholder</a><br><a href="https://github.com/midnightSuyama/Masu" target="_blank" rel="external">Masu</a>  </p>
-<p>但是呢 共同的特点就是<code>难用</code>(怎么难用? 可以自己看一下他们的文档)</p>
-<p>所以呢 处于好玩的目的 就自己写了一个简单易用的版本(怎么简单? 一行代码就搞定啦)</p>
-<h1 id="介绍">介绍</h1>
-<p><a href="https://github.com/adad184/MMPlaceHolder" target="_blank" rel="external">MMPlaceHolder</a> </p>
-<ul>
-<li>一行代码解决显示问题 简单易用</li>
-<li>搭建码农和设计之间的沟通桥梁 减少沟通成本(Talk is cheap. Show me the code.)</li>
-<li>显示大小自适应(最小支持30*30哦)</li>
-</ul>
-<h1 id="使用">使用</h1>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (<span class="keyword">void</span>)showPlaceHolder;</div><div class="line">- (<span class="keyword">void</span>)showPlaceHolderWithLineColor:(<span class="built_in">UIColor</span>*)lineColor;</div><div class="line">- (<span class="keyword">void</span>)showPlaceHolderWithLineColor:(<span class="built_in">UIColor</span>*)lineColor backColor:(<span class="built_in">UIColor</span>*)backColor;</div><div class="line">- (<span class="keyword">void</span>)showPlaceHolderWithLineColor:(<span class="built_in">UIColor</span>*)lineColor backColor:(<span class="built_in">UIColor</span>*)backColor arrowSize:(<span class="built_in">CGFloat</span>)arrowSize;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)hidePlaceHolder;</div><div class="line">- (MMPlaceHolder *)getPlaceHolder;</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/" data-id="7azo9zptcg5ny3fx" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2014/08/21/2014-08-21-kai-yuan-xiang-mu-mmplaceholder/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" class="article-date">
-  <time datetime="2014-01-31T05:24:53.000Z" itemprop="datePublished">01 31 2014</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" class="archive-article-date">
+  <time datetime="2014-01-31T05:24:53.000Z" itemprop="datePublished">01 31</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/开源项目/">开源项目</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
+      <a class="archive-article-title" href="/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/">开源项目:MMSpinImageView 用于360度显示环拍物体</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在Github上开源了一个小玩意 <a href="https://github.com/adad184/MMSpinImageView" target="_blank" rel="external">MMSpinImageView</a></p>
-<p>使用方法 可以用Delegate的方式,也可以直接设置一个包含UIImage的NSArray,或者直接从ZIP包里读取(需要其他类库支持)</p>
-<p>第一版本很简单 基于UIImageView来显示图片 如果有性能问题 会考虑用绘制的方法来实现</p>
-<p><img src="https://github.com/adad184/MMSpinImageView/blob/master/Image/demo.gif?raw=true" alt="demo"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/" data-id="q5kwhg1lkzq7q6mc" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2014/01/31/2014-01-31-kai-yuan-xiang-mu-mmspinimageview-yong-yu-360-du-xian-shi-huan-pai-wu-ti/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" class="article-date">
-  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">12 19 2013</time>
+    
+    
+      
+        </div></section>
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2013" class="archive-year">2013</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" class="archive-article-date">
+  <time datetime="2013-12-19T08:31:34.000Z" itemprop="datePublished">12 19</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/">解决表单被键盘遮住的问题(续)</a>
+      <a class="archive-article-title" href="/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/">解决表单被键盘遮住的问题(续)</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>刚才检查代码的时候 发现了之前代码的一些问题 这里做一下修正 为此我为UIView和UITableView各新增了一个Category方法</p>
-<figure class="highlight objc"><figcaption><span>UIView的Category</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>) haveSubview:(<span class="built_in">UIView</span>*)subView</div><div class="line">{</div><div class="line">    <span class="built_in">UIView</span> *v = subView;</div><div class="line">    </div><div class="line">    <span class="keyword">while</span> (v)</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( <span class="keyword">self</span> == v )</div><div class="line">        {</div><div class="line">            <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">        }</div><div class="line">        </div><div class="line">        v = v<span class="variable">.superview</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight objc"><figcaption><span>UITableVIew的Category方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">BOOL</span>) haveSubview:(<span class="built_in">UIView</span>*)subView</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( v && [<span class="keyword">self</span> haveSubview:v] )</div><div class="line">    {</div><div class="line">        <span class="keyword">while</span> ( v && ![[v class] isSubclassOfClass:[<span class="built_in">UITableViewCell</span> class]]) {</div><div class="line">            v = v<span class="variable">.superview</span>;</div><div class="line">        }</div><div class="line">        </div><div class="line">        <span class="keyword">if</span> ( v )</div><div class="line">        {</div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,NSStringFromClass(v<span class="variable">.class</span>));</div><div class="line">            </div><div class="line">            <span class="built_in">UITableViewCell</span> *cell = (<span class="built_in">UITableViewCell</span>*)v;</div><div class="line">            </div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,[<span class="keyword">self</span> indexPathForCell:cell]);</div><div class="line">            </div><div class="line">            [<span class="keyword">self</span> scrollToRowAtIndexPath:[<span class="keyword">self</span> indexPathForRowAtPoint:cell<span class="variable">.center</span>] atScrollPosition:UITableViewScrollPositionBottom animated:<span class="literal">YES</span>];</div><div class="line">        }</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这样 当我们需要处理弹出键盘时 就只需要如此调用就可以了</p>
-<figure class="highlight objc"><figcaption><span>调用方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">UIView</span> *v = [UIResponder currentFirstResponder];</div><div class="line">[<span class="keyword">self</span><span class="variable">.tableView</span> scrollToView:v];</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/" data-id="nfeljs4qned3yzuu" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/12/19/2013-12-19-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti-xu/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" class="article-date">
-  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">12 12 2013</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" class="archive-article-date">
+  <time datetime="2013-12-12T08:19:10.000Z" itemprop="datePublished">12 12</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/">完美解决 interactivePopGestureRecognizer 卡住的问题</a>
+      <a class="archive-article-title" href="/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/">完美解决 interactivePopGestureRecognizer 卡住的问题</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>interactivePopGestureRecognizer</code>是iOS7推出的解决<code>VeiwController</code>滑动后退的新功能,虽然很实用,但是坑也很多啊,用过的同学肯定知道问题在哪里,所以具体问题我就不描述了,这里只给出如何完美解决<code>interactivePopGestureRecognizer</code>卡住的问题.</p>
-<p>当然我们要自定义UINavigationController来解决这个问题:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="preprocessor">#import <span class="title">"MMNavController.h"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMNavController</span> ()</span></div><div class="line">{</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMNavController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)initWithRootViewController:(<span class="built_in">UIViewController</span> *)rootViewController</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithRootViewController:rootViewController];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        <span class="comment">// Custom initialization</span></div><div class="line">        </div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    </div><div class="line">    __<span class="keyword">weak</span> MMNavController *weakSelf = <span class="keyword">self</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.delegate</span> = weakSelf;</div><div class="line">    }</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)pushViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [<span class="keyword">super</span> pushViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToRootViewControllerAnimated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] && animated == <span class="literal">YES</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span>  [<span class="keyword">super</span> popToRootViewControllerAnimated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSArray</span> *)popToViewController:(<span class="built_in">UIViewController</span> *)viewController animated:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    <span class="keyword">if</span>( [<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)] )</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">NO</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> popToViewController:viewController animated:animated];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="preprocessor">#pragma mark UINavigationControllerDelegate</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)navigationController:(<span class="built_in">UINavigationController</span> *)navigationController</div><div class="line">       didShowViewController:(<span class="built_in">UIViewController</span> *)viewController</div><div class="line">                    animated:(<span class="built_in">BOOL</span>)animate</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ([<span class="keyword">self</span> respondsToSelector:<span class="keyword">@selector</span>(interactivePopGestureRecognizer)])</div><div class="line">    {</div><div class="line">        <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span><span class="variable">.enabled</span> = <span class="literal">YES</span>;</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">-(<span class="built_in">BOOL</span>)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( gestureRecognizer == <span class="keyword">self</span><span class="variable">.interactivePopGestureRecognizer</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( <span class="keyword">self</span><span class="variable">.viewControllers</span><span class="variable">.count</span> &lt; <span class="number">2</span> || <span class="keyword">self</span><span class="variable">.visibleViewController</span> == [<span class="keyword">self</span><span class="variable">.viewControllers</span> objectAtIndex:<span class="number">0</span>] )</div><div class="line">        {</div><div class="line">            <span class="keyword">return</span> <span class="literal">NO</span>;</div><div class="line">        }</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/" data-id="3okmchpqgc13jfm9" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/12/12/2013-12-12-wan-mei-jie-jue-interactivepopgesturerecognizer-qia-zhu-de-wen-ti/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" class="article-date">
-  <time datetime="2013-11-11T03:01:59.000Z" itemprop="datePublished">11 11 2013</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" class="archive-article-date">
+  <time datetime="2013-11-11T03:01:59.000Z" itemprop="datePublished">11 11</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/">解决表单被键盘遮住的问题</a>
+      <a class="archive-article-title" href="/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/">解决表单被键盘遮住的问题</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="问题">问题</h1>
-<p>处理表单的时候,一定会碰到的就是输入控件被键盘遮住的问题,如图:</p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti1.png" alt="实例"></p>
-<p>左边是普通表单,中间是2B表单,右边是文艺表单.</p>
-<h1 id="分析">分析</h1>
-<p>处理这种问题无非就是2个步骤:</p>
-<ol>
-<li>键盘弹出时,缩小<code>UITableView</code>的<code>frame</code></li>
-<li>滚动<code>UITableView</code>,让当前输入的控件可见</li>
-</ol>
-<p>代码写出来就是这几步</p>
-<ol>
-<li>捕获键盘事件</li>
-<li>计算键盘高度并调整<code>UITableView</code>的<code>frame</code></li>
-<li>获取当前正在输入的控件</li>
-<li>计算其在<code>UITableView</code>中的位置,并滚动到其位置让其可见</li>
-</ol>
-<p>那么如何一步一步的来实现这些步骤呢?</p>
-<h2 id="捕获键盘事件">捕获键盘事件</h2>
-<figure class="highlight objc"><figcaption><span>捕获键盘事件</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">[[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                         selector:<span class="keyword">@selector</span>(actionKeyboardShow:)</div><div class="line">                                             name:UIKeyboardDidShowNotification</div><div class="line">                                           object:<span class="literal">nil</span>];</div><div class="line">[[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                         selector:<span class="keyword">@selector</span>(actionKeyboardHide:)</div><div class="line">                                             name:UIKeyboardWillHideNotification</div><div class="line">                                           object:<span class="literal">nil</span>];</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)actionKeyboardShow:(<span class="built_in">NSNotification</span> *)notification</div><div class="line">{</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidShowNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidChangeFrameNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                             selector:<span class="keyword">@selector</span>(actionKeyboardShow:)</div><div class="line">                                                 name:UIKeyboardDidChangeFrameNotification</div><div class="line">                                               object:<span class="literal">nil</span>];</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)actionKeyboardHide:(<span class="built_in">NSNotification</span> *)notification</div><div class="line">{</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidChangeFrameNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                             selector:<span class="keyword">@selector</span>(actionKeyboardShow:)</div><div class="line">                                                 name:UIKeyboardDidShowNotification</div><div class="line">                                               object:<span class="literal">nil</span>];</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h2 id="计算键盘高度并调整UITableView的frame">计算键盘高度并调整<code>UITableView</code>的<code>frame</code></h2>
-<figure class="highlight objc"><figcaption><span>计算键盘高度并调整UITableView的frame</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)actionKeyboardShow:(<span class="built_in">NSNotification</span> *)notification</div><div class="line">{</div><div class="line">    <span class="built_in">CGSize</span> keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue]<span class="variable">.size</span></div><div class="line">    <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.frame</span> = CGRectMake(<span class="number">0</span>, <span class="number">0</span>, <span class="number">320</span>, <span class="keyword">self</span><span class="variable">.view</span><span class="variable">.h</span>-keyboardSize<span class="variable">.height</span>);</div><div class="line">    </div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidShowNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidChangeFrameNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                             selector:<span class="keyword">@selector</span>(actionKeyboardShow:)</div><div class="line">                                                 name:UIKeyboardDidChangeFrameNotification</div><div class="line">                                               object:<span class="literal">nil</span>];</div><div class="line">    </div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h2 id="获取当前正在输入的控件">获取当前正在输入的控件</h2>
-<p>这里得说一句,普通程序员一般是这样来获取的</p>
-<figure class="highlight objc"><figcaption><span>UIView的Category</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">UIView</span> *) getFirstResponder</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span><span class="variable">.isFirstResponder</span>) {</div><div class="line">        <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">for</span> (<span class="built_in">UIView</span> *subView <span class="keyword">in</span> <span class="keyword">self</span><span class="variable">.subviews</span>) {</div><div class="line">        <span class="built_in">UIView</span> *firstResponder = [subView getFirstResponder];</div><div class="line">        <span class="keyword">if</span> (firstResponder != <span class="literal">nil</span>) {</div><div class="line">            <span class="keyword">return</span> firstResponder;</div><div class="line">        }</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>虽然没错,但是文艺程序员应该<a href="http://stackoverflow.com/questions/5029267/is-there-any-way-of-asking-an-ios-view-which-of-its-children-has-first-responder/14135456#14135456" target="_blank" rel="external">这样来获取</a></p>
-<figure class="highlight objc"><figcaption><span>UIResponder的Category</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> __<span class="keyword">weak</span> <span class="keyword">id</span> currentFirstResponder;</div><div class="line"></div><div class="line">+(<span class="keyword">id</span>)currentFirstResponder {</div><div class="line">    currentFirstResponder = <span class="literal">nil</span>;</div><div class="line">    [[<span class="built_in">UIApplication</span> sharedApplication] sendAction:<span class="keyword">@selector</span>(findFirstResponder:) to:<span class="literal">nil</span> from:<span class="literal">nil</span> forEvent:<span class="literal">nil</span>];</div><div class="line">    <span class="keyword">return</span> currentFirstResponder;</div><div class="line">}</div><div class="line"></div><div class="line">-(<span class="keyword">void</span>)findFirstResponder:(<span class="keyword">id</span>)sender {</div><div class="line">    currentFirstResponder = <span class="keyword">self</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>同理,有时候我们需要让键盘消失,那么也有三种做法可以选择</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[someView resignFirstResponder];</div><div class="line"></div><div class="line">[<span class="keyword">self</span><span class="variable">.view</span> endEditing:<span class="literal">YES</span>];</div><div class="line"></div><div class="line">[[<span class="built_in">UIApplication</span> sharedApplication] sendAction:<span class="keyword">@selector</span>(resignFirstResponder) to:<span class="literal">nil</span> from:<span class="literal">nil</span> forEvent:<span class="literal">nil</span>];</div></pre></td></tr></table></figure>
-
-<p>如何选择呢? It’s up to U.</p>
-<h2 id="计算其在UITableView中的位置,并滚动到其位置让其可见">计算其在<code>UITableView</code>中的位置,并滚动到其位置让其可见</h2>
-<figure class="highlight objc"><figcaption><span>计算其在UITableView中的位置,并滚动到其位置让其可见</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)actionKeyboardShow:(<span class="built_in">NSNotification</span> *)notification</div><div class="line">{</div><div class="line">    <span class="built_in">CGSize</span> keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue]<span class="variable">.size</span>;</div><div class="line">    <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.frame</span> = CGRectMake(<span class="number">0</span>, <span class="number">0</span>, <span class="number">320</span>, <span class="keyword">self</span><span class="variable">.view</span><span class="variable">.h</span>-keyboardSize<span class="variable">.height</span>);</div><div class="line">    </div><div class="line">    <span class="built_in">UIView</span> *v = [UIResponder currentFirstResponder];</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( v )</div><div class="line">    {</div><div class="line">        <span class="keyword">while</span> ( ![v isKindOfClass:[<span class="built_in">UITableViewCell</span> class]]) {</div><div class="line">            v = v<span class="variable">.superview</span>;</div><div class="line">        }</div><div class="line">        </div><div class="line">        <span class="built_in">UITableViewCell</span> *cell = (<span class="built_in">UITableViewCell</span>*)v;</div><div class="line">        </div><div class="line">        [<span class="keyword">self</span><span class="variable">.tableView</span> scrollToRowAtIndexPath:[<span class="keyword">self</span><span class="variable">.tableView</span> indexPathForRowAtPoint:cell<span class="variable">.center</span>] atScrollPosition:UITableViewScrollPositionBottom animated:<span class="literal">YES</span>];</div><div class="line">    }</div><div class="line">    </div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidShowNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span> name:UIKeyboardDidChangeFrameNotification object:<span class="literal">nil</span>];</div><div class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></div><div class="line">                                             selector:<span class="keyword">@selector</span>(actionKeyboardShow:)</div><div class="line">                                                 name:UIKeyboardDidChangeFrameNotification</div><div class="line">                                               object:<span class="literal">nil</span>];</div><div class="line">    </div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/" data-id="kszsiu3vh8wb57xd" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/11/11/2013-11-11-jie-jue-biao-dan-bei-jian-pan-zhe-zhu-de-wen-ti/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="article-date">
-  <time datetime="2013-10-10T06:59:58.000Z" itemprop="datePublished">10 10 2013</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" class="archive-article-date">
+  <time datetime="2013-10-10T06:59:58.000Z" itemprop="datePublished">10 10</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
+      <a class="archive-article-title" href="/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/">如何从多重 modalViewController 中直接返回最底层</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>ModalViewController</code>是经常会用到的展现<code>ViewController</code>的方式,而显示和收起<code>ModalViewController</code>也是很简单的</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (<span class="keyword">void</span>)presentViewController:(<span class="built_in">UIViewController</span> *)viewControllerToPresent animated: (<span class="built_in">BOOL</span>)flag completion:(<span class="keyword">void</span> (^)(<span class="keyword">void</span>))completion NS_AVAILABLE_IOS(<span class="number">5</span>_0);</div><div class="line">- (<span class="keyword">void</span>)dismissViewControllerAnimated: (<span class="built_in">BOOL</span>)flag completion: (<span class="keyword">void</span> (^)(<span class="keyword">void</span>))completion NS_AVAILABLE_IOS(<span class="number">5</span>_0);</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)presentModalViewController:(<span class="built_in">UIViewController</span> *)modalViewController animated:(<span class="built_in">BOOL</span>)animated NS_DEPRECATED_IOS(<span class="number">2</span>_0, <span class="number">6</span>_0);</div><div class="line">- (<span class="keyword">void</span>)dismissModalViewControllerAnimated:(<span class="built_in">BOOL</span>)animated NS_DEPRECATED_IOS(<span class="number">2</span>_0, <span class="number">6</span>_0);</div></pre></td></tr></table></figure>
-
-<p>但是有的时候我们的需求很特殊,比如在一个<code>ModalViewController</code>里要present另一个<code>ModalViewController</code>,甚至再present一个<code>ModalViewController</code>,<strong>然后</strong>可能在某个时候APP发出一条消息,需要一下子dismiss掉所有的<code>ModalViewController</code>(比如你在使用过程中,突然APP检测到你的登录状态异常,需要重新登录,这个时候所有的页面都需要消失),这时候该如何办呢?</p>
-<p>正巧我现在正在做的项目遇到了这个问题,所以研究了一下,得到了以下的解决办法:</p>
-<p>首先,必须知道现在整个APP最顶层的<code>ViewController</code>是哪个,我的做法是在每个<code>ViewController</code>的<code>viewWillAppear</code>中记录一下,当然这个操作是自动完成的,因为每个项目,我都会从<code>UIViewController</code>派生一个子类,然后再从这个子类派生所有的<code>ViewController</code>方便管理.</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MMViewController</span> : <span class="title">UIViewController</span></span></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MMViewController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated</div><div class="line">{</div><div class="line">    APP<span class="variable">.presentingController</span> = <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-<p>得到了顶层的<code>ViewController</code>以后,事情就简单了,我们只要追根溯源,找到最底层的<code>ViewController</code>就行了</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">if</span> ( APP<span class="variable">.presentingController</span> )</div><div class="line">{</div><div class="line">    <span class="built_in">UIViewController</span> *vc = <span class="keyword">self</span><span class="variable">.presentingController</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( !vc<span class="variable">.presentingViewController</span> )</div><div class="line">    {</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">while</span> (vc<span class="variable">.presentingViewController</span>)</div><div class="line">    {</div><div class="line">        vc = vc<span class="variable">.presentingViewController</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    [vc dismissViewControllerAnimated:<span class="literal">YES</span> completion:^{</div><div class="line"></div><div class="line">    }];</div><div class="line">    </div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/" data-id="qtkfzvab2u5hsx49" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/10/10/2013-10-10-ru-he-cong-duo-zhong-modalviewcontroller-zhong-zhi-jie-fan-hui-zui-di-ceng/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
-
   
-    <article id="post-2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" class="article-date">
-  <time datetime="2013-09-10T06:56:46.000Z" itemprop="datePublished">09 10 2013</time>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" class="archive-article-date">
+  <time datetime="2013-09-10T06:56:46.000Z" itemprop="datePublished">09 10</time>
 </a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/技巧心得/">技巧心得</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+      
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/">个人总结的一些 APP 的代码实践</a>
+      <a class="archive-article-title" href="/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/">个人总结的一些 APP 的代码实践</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="建立一个辅助的APP类,减少对AppDelegate的修改">建立一个辅助的APP类,减少对AppDelegate的修改</h2>
-<p>最开始接触iOS开发的时候,如果需要一些全局变量或者全局函数的时候,总是直接在<code>AppDelegate</code>中添加,因为<code>AppDelegate</code>可以直接获取</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[<span class="built_in">UIApplication</span> sharedApplication]<span class="variable">.delegate</span></div></pre></td></tr></table></figure>
-
-<p>但是时间长了还是觉得这样不太好,<code>AppDelegate</code>本身有其自己的作用(对于App本身的一些事件进行处理,如启动,切换,推送),这样做感觉怪怪的,所以还是自己弄一个专门处理我们所需的全局变亮或者全局函数的对象会更好一些</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//APPHelper.h</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">APPHelper</span></span></div><div class="line"></div><div class="line">+ (APPHelper*)call;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>) configureWindow:(<span class="built_in">UIWindow</span>*)window;</div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readonly</span>) AppDelegate *delegate;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">strong</span>, <span class="keyword">readonly</span>) <span class="built_in">UIWindow</span> *window;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">//APPHelper.m</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">APPHelper</span> ()</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">APPHelper</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)init</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        </div><div class="line">        _delegate = (GGAppDelegate*)[<span class="built_in">UIApplication</span> sharedApplication]<span class="variable">.delegate</span>;</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line">+ (APPHelper *)call</div><div class="line">{</div><div class="line">    <span class="keyword">static</span> <span class="built_in">dispatch_once_t</span>  onceQueue;</div><div class="line">    <span class="keyword">static</span> APPHelper *appInstance;</div><div class="line"></div><div class="line">    <span class="built_in">dispatch_once</span>(&onceQueue, ^{</div><div class="line">        appInstance = [[APPHelper alloc] init];</div><div class="line">    });</div><div class="line">    <span class="keyword">return</span> appInstance;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">UIWindow</span> *)window</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span><span class="variable">.delegate</span><span class="variable">.window</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)configureWindow:(<span class="built_in">UIWindow</span>*)window</div><div class="line">{</div><div class="line">    </div><div class="line">    <span class="built_in">UINavigationController</span> *nav = [[<span class="built_in">UINavigationController</span> alloc] init];</div><div class="line"></div><div class="line">    ...</div><div class="line">    ...</div><div class="line">    ...</div><div class="line">    </div><div class="line">    window<span class="variable">.rootViewController</span> = nav;</div><div class="line">    </div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-
-<p>然后 在预编译头<code>*.pch</code>中加入</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#import <span class="title">"AppHelper.h"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="preprocessor">#define APP ([APPHelper call])</span></div></pre></td></tr></table></figure>
-
-<p>就可以直接在代码的任意一个地方直接使用此类了,如</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">//设置APP为圆角</span></div><div class="line">APP<span class="variable">.window</span><span class="variable">.layer</span><span class="variable">.cornerRadius</span> = <span class="number">5.0</span>f;</div><div class="line">APP<span class="variable">.window</span><span class="variable">.layer</span><span class="variable">.masksToBounds</span> = <span class="literal">YES</span>;</div></pre></td></tr></table></figure>
-
-<h2 id="简单的Autoresizing的宏">简单的Autoresizing的宏</h2>
-<p>一开始我就喜欢代码布局,从来没使用过IB或者SB开发,所以如何在代码中用<strong>Autoresizing</strong>就显得很重要了(那个时候还没有<em>AutoLayout</em>).</p>
-<p>为此我还专门研究了一下IB(那个时候还没有SB),并把生成的nib用<a href="https://github.com/akosma/nib2objc/" target="_blank" rel="external">nib2objc</a>转换成了代码来学习.</p>
-<p>使用下面的宏,可以很轻松的实现<strong>Autoresizing</strong>.</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#define FlexibleT                   UIViewAutoresizingFlexibleTopMargin</span></div><div class="line"><span class="preprocessor">#define FlexibleB                   UIViewAutoresizingFlexibleBottomMargin</span></div><div class="line"><span class="preprocessor">#define FlexibleL                   UIViewAutoresizingFlexibleLeftMargin</span></div><div class="line"><span class="preprocessor">#define FlexibleR                   UIViewAutoresizingFlexibleRightMargin</span></div><div class="line"><span class="preprocessor">#define FlexibleH                   UIViewAutoresizingFlexibleHeight</span></div><div class="line"><span class="preprocessor">#define FlexibleW                   UIViewAutoresizingFlexibleWidth</span></div><div class="line"></div><div class="line"><span class="preprocessor">#define FixedMarginT                FlexibleW | FlexibleB</span></div><div class="line"><span class="preprocessor">#define FixedMarginB                FlexibleW | FlexibleT</span></div><div class="line"><span class="preprocessor">#define FixedMarginL                FlexibleH | FlexibleR</span></div><div class="line"><span class="preprocessor">#define FixedMarginR                FlexibleH | FlexibleL</span></div><div class="line"><span class="preprocessor">#define FixedHorizental             FlexibleW | FlexibleT | FlexibleB</span></div><div class="line"><span class="preprocessor">#define FixedVertical               FlexibleH | FlexibleL | FlexibleR</span></div><div class="line"><span class="preprocessor">#define FixedALL                    FlexibleW | FlexibleH</span></div><div class="line"><span class="preprocessor">#define FixedCenter                 FlexibleL | FlexibleR | FlexibleT | FlexibleB</span></div></pre></td></tr></table></figure>
-
-<p>使用上述的宏时,最好对<code>UIView</code>扩展一下,添加下列方法</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>) autoResize:(UIViewAutoresizing) type</div><div class="line">{</div><div class="line">    <span class="keyword">self</span><span class="variable">.autoresizingMask</span> = mask;</div><div class="line">    <span class="keyword">self</span><span class="variable">.autoresizesSubviews</span> = <span class="literal">YES</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>使用方法如下</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XXXViewController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)init</div><div class="line">{</div><div class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) {</div><div class="line">        <span class="comment">// Custom initialization</span></div><div class="line">        </div><div class="line">        <span class="keyword">self</span><span class="variable">.tableView</span> = [[<span class="built_in">UITableView</span> alloc] initWithFrame:<span class="keyword">self</span><span class="variable">.view</span><span class="variable">.bounds</span> style:UITableViewStyleGrouped];</div><div class="line">        **[<span class="keyword">self</span><span class="variable">.tableView</span> autoResize:FixedALL];**    </div><div class="line">        <span class="keyword">self</span><span class="variable">.tableView</span><span class="variable">.delegate</span> = <span class="keyword">self</span>;</div><div class="line">        [<span class="keyword">self</span><span class="variable">.view</span> addSubview:<span class="keyword">self</span><span class="variable">.tableView</span>];</div><div class="line">        </div><div class="line">        ...</div><div class="line">        ...</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>关于各个宏的作用如下</p>
-<p>||              宏             ||          含义        ||<br>||:—————————————:||:——————————:||<br>|| FixedMarginB               ||      下侧距离固定      ||<br>|| FixedMarginL               ||      左侧距离固定      ||<br>|| FixedMarginR               ||      右侧距离固定      ||<br>|| FixedHorizental            ||      左右距离固定      ||<br>|| FixedVertical              ||      上下距离固定      ||<br>|| FixedALL                   ||      四周距离固定      ||<br>|| FixedCenter                ||      居中             ||</p>
-<p>从这张图上我们可以看到对于各个值的含义,出自<a href="http://stackoverflow.com/questions/7754851/autoresizing-masks-programmatically-vs-interfact-builder-xib-nib" target="_blank" rel="external">stackoverflow</a></p>
-<p><img src="https://dl.dropboxusercontent.com/u/433937/Blog/2013-12-10-ge-ren-zong-jie-de-%5B%3F%5D-xie-app-de-dai-ma-shi-jian1.png" alt="值定义"></p>
-<p>至今为止这套宏在我的开发过程中还使用得很好,所以我也没有去研究新的<code>AutoLayout</code>(好像也比较的复杂,),不过在<code>Github</code>上有个对<code>AutoLayout</code>封装得很好的库<a href="https://github.com/cloudkite/Masonry" target="_blank" rel="external">Masonry</a>,有空的时候可以研究一下</p>
-<h2 id="一些常用的Category">一些常用的Category</h2>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  UIColor</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line"><span class="comment">//通过RGBA值(比如红色FF0000FF)生成UIColor</span></div><div class="line">+ (<span class="built_in">UIColor</span>* ) colorWithHex:(<span class="keyword">int</span>)color {</div><div class="line">    </div><div class="line">    <span class="keyword">float</span> red = (color & <span class="number">0xff000000</span>) &gt;&gt; <span class="number">24</span>;</div><div class="line">    <span class="keyword">float</span> green = (color & <span class="number">0x00ff0000</span>) &gt;&gt; <span class="number">16</span>;</div><div class="line">    <span class="keyword">float</span> blue = (color & <span class="number">0x0000ff00</span>) &gt;&gt; <span class="number">8</span>;</div><div class="line">    <span class="keyword">float</span> alpha = (color & <span class="number">0x000000ff</span>);</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="built_in">UIColor</span> colorWithRed:red/<span class="number">255.0</span> green:green/<span class="number">255.0</span> blue:blue/<span class="number">255.0</span> alpha:alpha/<span class="number">255.0</span>];</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  UIImage</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line"><span class="comment">//复制当前图片</span></div><div class="line">- (<span class="built_in">UIImage</span> *)duplicate</div><div class="line">{</div><div class="line">    CGImageRef newCgIm = CGImageCreateCopy(<span class="keyword">self</span><span class="variable">.CGImage</span>);</div><div class="line">    <span class="built_in">UIImage</span> *newImage = [<span class="built_in">UIImage</span> imageWithCGImage:newCgIm scale:<span class="keyword">self</span><span class="variable">.scale</span> orientation:<span class="keyword">self</span><span class="variable">.imageOrientation</span>];</div><div class="line">    CGImageRelease(newCgIm);</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> newImage;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//使当前图片可拉伸</span></div><div class="line">- (<span class="built_in">UIImage</span> *)stretched</div><div class="line">{</div><div class="line">    <span class="built_in">CGSize</span> size = <span class="keyword">self</span><span class="variable">.size</span>;</div><div class="line">    </div><div class="line">    <span class="built_in">UIEdgeInsets</span> insets = UIEdgeInsetsMake(truncf(size<span class="variable">.height</span>-<span class="number">1</span>)/<span class="number">2</span>, truncf(size<span class="variable">.width</span>-<span class="number">1</span>)/<span class="number">2</span>, truncf(size<span class="variable">.height</span>-<span class="number">1</span>)/<span class="number">2</span>, truncf(size<span class="variable">.width</span>-<span class="number">1</span>)/<span class="number">2</span>);</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> resizableImageWithCapInsets:insets];</div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//使当前图片抗锯齿(当图片在旋转时有用, 原理就是在图片周围加1px的透明像素)</span></div><div class="line">- (<span class="built_in">UIImage</span> *)antiAlias</div><div class="line">{</div><div class="line">    <span class="keyword">int</span> border = <span class="number">1</span>;</div><div class="line">    <span class="built_in">CGRect</span> rect = CGRectMake(border, border, <span class="keyword">self</span><span class="variable">.size</span><span class="variable">.width</span>-<span class="number">2</span>*border, <span class="keyword">self</span><span class="variable">.size</span><span class="variable">.height</span>-<span class="number">2</span>*border);</div><div class="line">    </div><div class="line">    <span class="built_in">UIImage</span> *img = <span class="literal">nil</span>;</div><div class="line">    </div><div class="line">    UIGraphicsBeginImageContext(CGSizeMake(rect<span class="variable">.size</span><span class="variable">.width</span>,rect<span class="variable">.size</span><span class="variable">.height</span>));</div><div class="line">    [<span class="keyword">self</span> drawInRect:CGRectMake(-<span class="number">1</span>, -<span class="number">1</span>, <span class="keyword">self</span><span class="variable">.size</span><span class="variable">.width</span>, <span class="keyword">self</span><span class="variable">.size</span><span class="variable">.height</span>)];</div><div class="line">    img = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">    UIGraphicsEndImageContext();</div><div class="line">    </div><div class="line">    UIGraphicsBeginImageContext(<span class="keyword">self</span><span class="variable">.size</span>);</div><div class="line">    [img drawInRect:rect];</div><div class="line">    <span class="built_in">UIImage</span>* antiImage = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">    UIGraphicsEndImageContext();</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> antiImage;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//创建纯色的图片</span></div><div class="line">+ (<span class="built_in">UIImage</span> *)imageWithColor:(<span class="built_in">UIColor</span> *)color Size:(<span class="built_in">CGSize</span>)size</div><div class="line">{</div><div class="line">    <span class="built_in">CGRect</span> rect = CGRectMake(<span class="number">0.0</span>f, <span class="number">0.0</span>f, size<span class="variable">.width</span>, size<span class="variable">.height</span>);</div><div class="line">    UIGraphicsBeginImageContext(rect<span class="variable">.size</span>);</div><div class="line">    CGContextRef context = UIGraphicsGetCurrentContext();</div><div class="line">    </div><div class="line">    CGContextSetFillColorWithColor(context, [color CGColor]);</div><div class="line">    CGContextFillRect(context, rect);</div><div class="line">    </div><div class="line">    <span class="built_in">UIImage</span> *image = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">    UIGraphicsEndImageContext();</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [image stretched];</div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//imageNamed的非缓存版</span></div><div class="line">+ (<span class="built_in">UIImage</span> *)imageName:(<span class="built_in">NSString</span> *)name</div><div class="line">{</div><div class="line">    <span class="built_in">NSString</span> *path = [[[<span class="built_in">NSBundle</span> mainBundle] bundlePath] stringByAppendingString:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"/%@"</span>,name]];</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> [<span class="built_in">UIImage</span> imageWithContentsOfFile:path];</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  UIButton</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line">- (<span class="keyword">float</span>)x</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span><span class="variable">.frame</span><span class="variable">.origin</span><span class="variable">.x</span>;</div><div class="line">}</div><div class="line">- (<span class="keyword">float</span>)y</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span><span class="variable">.frame</span><span class="variable">.origin</span><span class="variable">.y</span>;</div><div class="line">}</div><div class="line">- (<span class="keyword">float</span>)w</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span><span class="variable">.frame</span><span class="variable">.size</span><span class="variable">.width</span>;</div><div class="line">}</div><div class="line">- (<span class="keyword">float</span>)h</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span><span class="variable">.frame</span><span class="variable">.size</span><span class="variable">.height</span>;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)setTagName:(<span class="built_in">NSString</span>*)name</div><div class="line">{</div><div class="line">    <span class="keyword">self</span><span class="variable">.tag</span> = [name hash];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">UIView</span> *)viewWithName:(<span class="built_in">NSString</span> *)name</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> viewWithTag:[name hash]];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>) autoResize:(UIViewAutoresizing)mask</div><div class="line">{</div><div class="line">    <span class="keyword">self</span><span class="variable">.autoresizingMask</span> = mask;</div><div class="line">    <span class="keyword">self</span><span class="variable">.autoresizesSubviews</span> = <span class="literal">YES</span>;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)setPosition:(<span class="built_in">CGRect</span>)position</div><div class="line">{</div><div class="line">    <span class="keyword">self</span><span class="variable">.bounds</span> = CGRectMake(<span class="number">0</span>, <span class="number">0</span>, position<span class="variable">.size</span><span class="variable">.width</span>, position<span class="variable">.size</span><span class="variable">.height</span>);</div><div class="line">    <span class="keyword">self</span><span class="variable">.center</span> = CGPointMake(position<span class="variable">.origin</span><span class="variable">.x</span>,position<span class="variable">.origin</span><span class="variable">.y</span>);</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  UIButton</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line">+ (<span class="built_in">UIButton</span>*) buttonWithTarget:(<span class="keyword">id</span>)target action:(SEL)sel</div><div class="line">{</div><div class="line">    <span class="built_in">UIButton</span> *btn = [<span class="built_in">UIButton</span> buttonWithType:UIButtonTypeCustom];</div><div class="line">    [btn addTarget:target action:sel forControlEvents:UIControlEventTouchUpInside];</div><div class="line">    <span class="keyword">return</span> btn;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>) setTextN:(<span class="built_in">NSString</span>*)n H:(<span class="built_in">NSString</span>*)h D:(<span class="built_in">NSString</span>*)d S:(<span class="built_in">NSString</span> *)s</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( n )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setTitle:n forState:UIControlStateNormal];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( h )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setTitle:h forState:UIControlStateHighlighted];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( d )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setTitle:d forState:UIControlStateDisabled];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( s )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setTitle:s forState:UIControlStateSelected];</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>) setImageN:(<span class="built_in">NSString</span>*)n H:(<span class="built_in">NSString</span>*)h D:(<span class="built_in">NSString</span>*)d S:(<span class="built_in">NSString</span> *)s</div><div class="line">{</div><div class="line">    <span class="keyword">if</span> ( n )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setImage:[<span class="built_in">UIImage</span> imageName:n] forState:UIControlStateNormal];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( h )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setImage:[<span class="built_in">UIImage</span> imageName:h] forState:UIControlStateHighlighted];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( d )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setImage:[<span class="built_in">UIImage</span> imageName:d] forState:UIControlStateDisabled];</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="keyword">if</span> ( s )</div><div class="line">    {</div><div class="line">        [<span class="keyword">self</span> setImage:[<span class="built_in">UIImage</span> imageName:s] forState:UIControlStateSelected];</div><div class="line">        </div><div class="line">        <span class="keyword">if</span> ( h )</div><div class="line">        {</div><div class="line">            [<span class="keyword">self</span> setImage:[<span class="built_in">UIImage</span> imageName:h] forState:UIControlStateHighlighted | UIControlStateSelected];</div><div class="line">        }</div><div class="line">        </div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  NSString</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line">-(<span class="built_in">NSString</span> *) trimHead</div><div class="line">{</div><div class="line">    <span class="built_in">NSInteger</span> i;</div><div class="line">    NSCharacterSet *cs = [NSCharacterSet whitespaceAndNewlineCharacterSet];</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; [<span class="keyword">self</span> length]; i++)</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( ![cs characterIsMember: [<span class="keyword">self</span> characterAtIndex: i]] ) <span class="keyword">break</span>;</div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> substringFromIndex: i];</div><div class="line">}</div><div class="line"></div><div class="line">-(<span class="built_in">NSString</span> *) trimTail</div><div class="line">{</div><div class="line">    <span class="built_in">NSInteger</span> i;</div><div class="line">    NSCharacterSet *cs = [NSCharacterSet whitespaceAndNewlineCharacterSet];</div><div class="line">    <span class="keyword">for</span>(i = [<span class="keyword">self</span> length] -<span class="number">1</span>; i &gt;= <span class="number">0</span>; i--)</div><div class="line">    {</div><div class="line">        <span class="keyword">if</span> ( ![cs characterIsMember: [<span class="keyword">self</span> characterAtIndex: i]] ) <span class="keyword">break</span>;    </div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> substringToIndex: (i+<span class="number">1</span>)];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSString</span> *) trimBoth</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span> trimHead] trimTail];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">NSString</span>*)MD5</div><div class="line">{</div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *ptr = [<span class="keyword">self</span> UTF8String];</div><div class="line">    </div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> md5Buffer[CC_MD5_DIGEST_LENGTH];</div><div class="line">    </div><div class="line">    CC_MD5(ptr, strlen(ptr), md5Buffer);</div><div class="line">    </div><div class="line">    <span class="built_in">NSMutableString</span> *output = [<span class="built_in">NSMutableString</span> stringWithCapacity:CC_MD5_DIGEST_LENGTH * <span class="number">2</span>];</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CC_MD5_DIGEST_LENGTH; i++) </div><div class="line">        [output appendFormat:<span class="string">@"%02x"</span>,md5Buffer[i]];</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> output;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)equals:(<span class="built_in">NSString</span> *)str</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> compare:str] == NSOrderedSame;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">CGFloat</span>)heightByFont:(<span class="built_in">UIFont</span> *)font width:(<span class="built_in">CGFloat</span>)width</div><div class="line">{</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> sizeWithFont:font</div><div class="line">            constrainedToSize:CGSizeMake(width, CGFLOAT_MAX)</div><div class="line">                lineBreakMode:NSLineBreakByWordWrapping]<span class="variable">.height</span>;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  NSDictionary</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line"><span class="comment">//使取得的值不会使NSNull,在JSON解析的时候会有这种问题,有时候服务器返回了 {"test":null},但是被解析成了NSNull,这时APP这边处理起来会比较麻烦</span></div><div class="line">- (<span class="keyword">id</span>)objectForKeyNotNull:(<span class="keyword">id</span>)key {</div><div class="line">    <span class="keyword">id</span> object = [<span class="keyword">self</span> objectForKey:key];</div><div class="line">    <span class="keyword">if</span> (object == [NSNull null])</div><div class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> object;</div><div class="line">}</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"><span class="comment">//  NSAttributedString</span></div><div class="line"><span class="comment">///////////////////////////////////////</span></div><div class="line"></div><div class="line">- (<span class="built_in">CGFloat</span>)heightByWidth:(<span class="built_in">CGFloat</span>)width</div><div class="line">{</div><div class="line">    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)<span class="keyword">self</span>);</div><div class="line">    <span class="built_in">CGSize</span> targetSize = CGSizeMake(width, CGFLOAT_MAX);</div><div class="line">    <span class="built_in">CGSize</span> fitSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(<span class="number">0</span>, [<span class="keyword">self</span> length]), <span class="literal">NULL</span>, targetSize, <span class="literal">NULL</span>);</div><div class="line">    CFRelease(framesetter);</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> fitSize<span class="variable">.height</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://www.adad184.com/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/" data-id="dyptv1yu1b8n86zp" class="article-share-link">分享到</a>
-      
-        <a href="http://www.adad184.com/2013/09/10/2013-09-10-ge-ren-zong-jie-de-yi-xie-app-de-dai-ma-shi-jian/#ds-thread" class="article-comment-link">Comments</a>
-      
-      
-    </footer>
+    </header>
   </div>
-  
 </article>
 
+  
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/08/06/2013-08-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian/" class="archive-article-date">
+  <time datetime="2013-08-06T08:51:28.000Z" itemprop="datePublished">08 06</time>
+</a>
+      
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2013/08/06/2013-08-06-at-nimbus-jie-shao-yu-shi-yong-shi-jian/">NimbusKit 介绍与使用实践</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
+
+  
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/" class="archive-article-date">
+  <time datetime="2013-07-05T08:41:39.000Z" itemprop="datePublished">07 05</time>
+</a>
+      
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2013/07/05/2013-07-05-ru-he-rang-uitableviewcell-zhong-de-imageview-da-xiao-gu-ding/">如何让 UITableViewCell 中的 imageView 大小固定</a>
+    </h1>
+  
+
+    </header>
+  </div>
+</article>
 
   
   
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-    </nav>
+    </div></section>
   
 </section>
         
@@ -742,11 +410,11 @@
           </li>
         
           <li>
-            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
+            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
           </li>
         
           <li>
-            <a href="http://www.weibo.com/ljc1986" target="_blank">Weibo</a>
+            <a href="https://www.dropbox.com/sh/y636n1ysardp0m7/AAD8h0RT37cOVgIKkrtSZcQwa" target="_blank">Dropbox</a>
           </li>
         
       </ul>
@@ -771,9 +439,11 @@
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
   
 </nav>
     

@@ -48,8 +48,8 @@ tag_map:
 ## 2: Enable pagination
 ## 1: Disable pagination
 ## 0: Fully Disable
-archive: 2
-category: 2
+archive: 1
+category: 1
 tag: 2
 
 # Server
@@ -81,6 +81,10 @@ disqus_shortname: adad184
 ## Themes: https://github.com/hexojs/hexo/wiki/Themes
 theme: landscape-plus
 exclude_generator:
+
+plugins:
+  hexo-generator-minify
+  hexo-generator-sitemap
 
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
